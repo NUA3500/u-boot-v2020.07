@@ -433,11 +433,18 @@ static int initr_flash(void)
 #endif
 
 #ifdef CONFIG_CMD_NAND
+#ifdef CONFIG_SPI_NAND
+int spi_nand_init(void);
+#endif
 /* go init the NAND */
 static int initr_nand(void)
 {
 	puts("NAND:  ");
 	nand_init();
+#ifdef CONFIG_SPI_NAND
+	puts("SPINAND:  ");
+	spi_nand_init();
+#endif
 	printf("%lu MiB\n", nand_size() / 1024);
 	return 0;
 }
@@ -478,7 +485,6 @@ static int should_load_env(void)
 	if (IS_ENABLED(CONFIG_OF_CONTROL))
 		return fdtdec_get_config_int(gd->fdt_blob,
 						"load-environment", 1);
-
 	if (IS_ENABLED(CONFIG_DELAY_ENVIRONMENT))
 		return 0;
 

@@ -1,0 +1,6 @@
+nua3500
+M:	Chi-Wen Weng <cwweng@nuvoton.com>
+S:	Maintained
+F:	board/nuvoton/nua3500
+F:	include/configs/nua3500.h
+F:	configs/nua3500_defconfig

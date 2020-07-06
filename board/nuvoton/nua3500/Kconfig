@@ -1,0 +1,13 @@
+if TARGET_NUA3500
+
+config SYS_BOARD
+	default "nua3500"
+
+config SYS_VENDOR
+	default "nuvoton"
+
+config SYS_CONFIG_NAME
+	default "nua3500"
+
+endif
+
