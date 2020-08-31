@@ -1,0 +1,24 @@
+if ARCH_NUVOTON
+
+config SYS_SOC
+	default "nuvoton"
+
+config SYS_VENDOR
+	default "nuvoton"
+
+config NUA3500
+	bool "Nuvoton NUA3500"
+	default y
+
+
+config TARGET_NUA3500
+	bool "Nuvoton NUA3500"
+	select ARM64
+	help
+	  The Nuvoton NUA3500 is a ARM64-based MPU with a dual-core Cortex-A35.
+	  including UART, SPI, USB, SD, eMMC, NAND, EPWM,
+	  EADC, Ethernet, I2C, I2S, GC520L, VC8000.
+
+source "board/nuvoton/nua3500/Kconfig"
+
+endif

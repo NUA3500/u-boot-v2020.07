@@ -901,6 +901,44 @@ static const struct flash_info *spi_nor_read_id(struct spi_nor *nor)
 		}
 	}
 
+#if defined(CONFIG_SPI_NAND_WINBOND)
+	{
+		id[0] = id[1];
+		id[1] = id[2];
+		id[2] = id[3];
+
+		info = spi_nor_ids;
+		for (; info->name; info++) {
+			if (info->id_len) {
+				printf("info->id[0x%x], id[0x%x], info->id_len[%d]\n",*(unsigned int*)info->id, *(unsigned int*)id,info->id_len);
+				if (!memcmp(info->id, id, info->id_len))
+					return info;
+			}
+		}
+	}
+#endif
+
+#if defined(CONFIG_SPI_NAND_XTX) || defined(CONFIG_SPI_NAND_MACRONIX) ||\
+    defined(CONFIG_SPI_NAND_MK) || defined(CONFIG_SPI_NAND_ATO) ||\
+    defined(CONFIG_SPI_NAND_MICRON) || defined(CONFIG_SPI_NAND_GD)
+	{
+		u16 jedec;
+		u16 info_id;
+
+                jedec = id[1] << 8 | id[2];
+
+		info = spi_nor_ids;
+		for (; info->name; info++) {
+			if (info->id_len) {
+				info_id = info->id[1] << 8 | info->id[2];
+				//printf("[info_id[0x%x], id[0x%x]\n", info_id, jedec);
+				if (jedec == info_id)
+					return info;
+			}
+		}
+	}
+#endif
+
 	dev_err(nor->dev, "unrecognized JEDEC id bytes: %02x, %02x, %02x\n",
 		id[0], id[1], id[2]);
 	return ERR_PTR(-ENODEV);

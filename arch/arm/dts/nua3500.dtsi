@@ -1,0 +1,405 @@
+/*
+ * Device Tree Source for NUA3500
+ *
+ * Copyright (C) 2020 Nuvoton Technology Corp.
+ *
+ * The code contained herein is licensed under the GNU General Public
+ * License. You may obtain a copy of the GNU General Public License
+ * Version 2 or later at the following locations:
+ *
+ * http://www.opensource.org/licenses/gpl-license.html
+ * http://www.gnu.org/copyleft/gpl.html
+ */
+
+#include <dt-bindings/interrupt-controller/arm-gic.h>
+
+#include "dt-bindings/input/input.h"
+
+//#define ENABLE_PSCI
+/{
+	compatible = "nuvoton,nua3500";
+	interrupt-parent = <&gic>;
+	#address-cells = <2>;
+	#size-cells = <2>;
+
+	cpus {
+		#address-cells = <2>;
+		#size-cells = <0>;
+
+		/* We have 1 clusters having 2 Cortex-A35 cores */
+		cpu0: cpu@0 {
+                        device_type = "cpu";
+                        compatible = "arm,cortex-a35";
+                        reg = <0x0 0x0>;
+			#ifdef ENABLE_PSCI
+			enable-method = "psci";
+			#else
+                        enable-method = "spin-table";
+                        cpu-release-addr = <0x0 0x8000fff8>;
+			#endif
+			next-level-cache = <&L2_0>;
+                };
+#if 0
+                cpu1: cpu@1 {
+                        device_type = "cpu";
+                        compatible = "arm,cortex-a35";
+                        reg = <0x0 0x1>;
+			#ifdef ENABLE_PSCI
+			enable-method = "psci";
+			#else
+                        enable-method = "spin-table";
+                        cpu-release-addr = <0x0 0x8000fff8>;
+			#endif
+			next-level-cache = <&L2_0>;
+                };
+#endif
+		L2_0: l2-cache0 {
+			compatible = "cache";
+			cache-level = <2>;
+		};
+	};
+
+#if 0
+        pmu {
+                interrupt-affinity = <&cpu0>, <&cpu1>;
+        };
+#endif
+
+#ifdef ENABLE_PSCI
+	psci {
+                compatible = "arm,psci";
+		cpu_on = <0xC4000003>;
+                method = "smc";
+        };
+#endif
+
+#if 0
+        pmu {
+                compatible = "arm,armv8-pmuv3";
+                interrupts = <GIC_PPI 7 (GIC_CPU_MASK_SIMPLE(6) | IRQ_TYPE_LEVEL_HIGH)>;
+		interrupt-affinity = <&A35_0>, <&A35_1>;
+        };
+#endif
+
+	memory@80000000 {
+		device_type = "memory";
+		reg = <0x00000000 0x80000000 0 0x8000000>; /* DRAM space - 1, size : 1 GB DRAM */
+		//reg = <0x00000000 0x80000000 0 0x4000000>; /* DRAM space - 1, size : 64MB */
+	};
+
+        timer {
+                compatible = "arm,armv8-timer";
+                interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Physical Secure */
+                                <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Physical Non-Secure */
+                                <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Virtual */
+                                <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>; /* Hypervisor */
+                clock-frequency = <12000000>;
+                interrupt-parent = <&gic>;
+        };
+
+	gic: interrupt-controller@50800000 {
+		compatible = "arm,gic-400";
+		#interrupt-cells = <3>;
+		interrupt-parent = <&gic>;
+		interrupt-controller;
+		reg =   <0x0 0x50801000 0 0x1000>, /* GICD */
+                        <0x0 0x50802000 0 0x2000>, /* GICC */
+                        <0x0 0x50804000 0 0x2000>, /* GICH */
+                        <0x0 0x50806000 0 0x2000>; /* GICV */
+		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_RAW(0x13) | IRQ_TYPE_LEVEL_HIGH)>;
+	};
+
+#if 1
+	uart0: serial@40700000 {
+		compatible = "nuvoton,nua3500-uart";
+		reg = <0x0 0x40700000 0x0 0x10000>;
+		interrupts = <GIC_SPI 59 IRQ_TYPE_EDGE_RISING>;
+		port-number = <0>;
+		pdma-enable = <0>;
+		status = "okay";
+	};
+#endif
+
+        ehci0: ehci@40140000 {
+		compatible = "nuvoton,nua3500-ehci0";
+		reg = <0x0 0x40140000 0x0 0x1000>;
+		interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+        };
+
+        ehci1: ehci@401C0000 {
+		compatible = "nuvoton,nua3500-ehci1";
+		reg = <0x0 0x401C0000 0x0 0x1000>;
+		interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+        };
+
+        ohci0: ohci@40150000 {
+		compatible = "nuvoton,nua3500-ohci0";
+		reg = <0x0 0x40150000 0x0 0x1000>;
+		interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+        };
+
+        ohci1: ohci@401D0000 {
+		compatible = "nuvoton,nua3500-ohci1";
+		reg = <0x0 0x401D0000 0x0 0x1000>;
+		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+        };
+
+        /* H/W bug. Non-secure cannot access! */
+        ohci2: ohci@40170000 {
+		compatible = "nuvoton,nua3500-ohci2";
+		reg = <0x0 0x40170000 0x0 0x1000>;
+		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+        };
+
+	/* Crypto engine */
+        crypto: crpt@40300000 {
+		compatible = "nuvoton,nua3500-crypto";
+		reg = <0x0 0x40300000 0x0 0x1000>;
+		interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+        };
+
+	/* Key Store */
+        key_store: ks@40340800 {
+		compatible = "nuvoton,nua3500-ks";
+		reg = <0x0 0x40340800 0x0 0x800>;
+		interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+        };
+
+	/* TRNG */
+        trng: trng@40B90000 {
+		compatible = "nuvoton,nua3500-trng";
+		reg = <0x0 0x40B90000 0x0 0x400>;
+		interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+        };
+
+	rtc: rtc@40410000 {
+		compatible = "nuvoton,nua3500-rtc";
+		reg = <0x0 0x40410000 0x0 0x10000>;
+		interrupts = <GIC_SPI 5 IRQ_TYPE_EDGE_RISING>;
+		status = "disabled";
+	};
+
+
+	keypad: keypad@404A0000 {
+		compatible = "nuvoton,nua3500-kpi";
+
+		reg = <0x0 0x404A0000 0x0 0x10000>;
+		interrupts = <GIC_SPI 79 IRQ_TYPE_EDGE_RISING>;
+
+		keypad,num-rows = <4>;
+		keypad,num-columns = <4>;
+
+		linux,keymap = <MATRIX_KEY(0x00, 0x02, KEY_F) /* key_forward */
+		MATRIX_KEY(0x00, 0x03, KEY_HOME) /* key_home */
+		MATRIX_KEY(0x01, 0x00, KEY_A) /* key_contacts */
+		MATRIX_KEY(0x01, 0x01, KEY_1) /* key_1 */
+		MATRIX_KEY(0x01, 0x02, KEY_2) /* key_2 */
+		MATRIX_KEY(0x01, 0x03, KEY_3) /* key_3 */
+		MATRIX_KEY(0x02, 0x00, KEY_P) /* key_phone */
+		MATRIX_KEY(0x02, 0x01, KEY_4) /* key_4 */
+		MATRIX_KEY(0x02, 0x02, KEY_5) /* key_5 */
+		MATRIX_KEY(0x02, 0x03, KEY_6) /* key_6 */
+		MATRIX_KEY(0x03, 0x00, KEY_C) /* key_call_log */
+		MATRIX_KEY(0x03, 0x01, KEY_7) /* key_7 */
+		MATRIX_KEY(0x03, 0x02, KEY_8) /* key_8 */
+		MATRIX_KEY(0x03, 0x03, KEY_9) /* key_9 */
+		>;
+
+
+		/*
+		debounce setting:
+		0 = disable debounce
+		3 = debounce preiod is 8 clocks.
+		4 = debounce preiod is 16 clocks.
+		5 = debounce preiod is 32 clocks.
+		6 = debounce preiod is 64 clocks.
+		7 = debounce preiod is 128 clocks.
+		8 = debounce preiod is 256 clocks.
+		9 = debounce preiod is 512 clocks.
+		10 = debounce preiod is 1024 clocks.
+		11 = debounce preiod is 2048 clocks.
+		12 = debounce preiod is 4096 clocks.
+		13 = debounce preiod is 8192 clocks.
+		*/
+		debounce-period = <1>;
+
+		/* pre-scale is from 1 ~ 256 */
+		per-scale = <1>;
+
+		/* pre-scale divider is from 1 ~ 256 */
+		per-scalediv = <32>;
+
+		status = "disabled";
+
+	};
+
+	qspi0: qspi@40680000 {
+		compatible = "nuvoton,nua3500-qspi";
+		reg = <0x0 0x40680000 0x0 0x10000>;
+		interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
+		/*interrupt-names = "qspi0irq";*/
+		num_cs = <2>;
+		lsb = <0>;
+		txneg = <1>;
+		clkpol = <0>;
+		rxneg = <0>;
+		divider = <3>;
+		sleep = <0>;
+		txbitlen = <8>;
+		bus_num = <0>;
+		status = "okay";
+
+		flash@0 {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			compatible = "winbond,w25q128";
+			spi-max-frequency = <30000000>;
+			reg = <0 0x0 0x2000000>;
+
+			partition@0 {
+				label = "U-Boot";
+				reg = <0x0 0x40000>;
+			};
+			partition@40000 {
+				label = "Linux";
+				reg = <0x40000 0x40000>;
+			};
+			partition@80000 {
+				label = "Rootfs";
+				reg = <0x80000 0x40000>;
+			};
+		};
+	};
+
+	sdhci0: sdhci@40180000 {
+		compatible = "snps,dwcmshc-sdhci";
+		reg = <0x0 0x40180000 0x0 0x2000>;
+		interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
+		/* clocks = <&emmcclk>; */
+		bus-width = <4>;
+		max-frequency = <200000000>;
+		sdhci,auto-cmd12;
+		no-1-8-v;
+		status = "disabled";
+        };
+
+	hwsem: hwspinlock@40380000 {
+		compatible = "nuvoton,nua3500-hwsem";
+		reg = <0x0 0x40380000 0x0 0x1000>;
+		status = "disabled";
+	};
+
+	wormhole: mailbox@403A0000 {
+		compatible = "nuvoton,nua3500-wormhole";
+		reg = <0x0 0x403A0000 0x0 0x1000>;
+		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
+		wakeup-source;
+		#mbox-cells = <1>;
+		status = "disabled";
+	};
+
+#if 0
+        sdhci1: sdhci@40190000 {
+		compatible = "snps,dwcmshc-sdhci";
+		reg = <0x0 0x40190000 0x0 0x2000>;
+		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+		bus-width = <4>;
+		max-frequency = <100000000>;
+		status = "disabled";
+		no-1-8-v;
+	};
+#if 0
+	dma0: dma@40080000 {
+		compatible = "nuvoton,nua3500-dma";
+		reg = <0x0 0x40080000 0x0 0x2000>;
+		interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+	dma1: dma@40090000 {
+		compatible = "nuvoton,nua3500-dma";
+		reg = <0x0 0x40090000 0x0 0x2000>;
+		interrupts = <GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+	dma2: dma@400A0000 {
+		compatible = "nuvoton,nua3500-dma";
+		reg = <0x0 0x400A0000 0x0 0x2000>;
+		interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+	dma3: dma@400B0000 {
+		compatible = "nuvoton,nua3500-dma";
+		reg = <0x0 0x400B0000 0x0 0x2000>;
+		interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+#else
+	dma@40080000 {
+		compatible = "nuvoton,nuc980-dma";
+		reg = <0x0 0x40080000 0x0 0x2000>,
+					<0x0 0x40090000 0x0 0x2000>,
+					<0x0 0x400A0000 0x0 0x2000>,
+					<0x0 0x400B0000 0x0 0x2000>;
+		interrupts =	<GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>,
+									<GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>,
+									<GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>,
+									<GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
+		status = "disabled";
+	};
+#endif
+
+	sdhci0: sdhci@40180000 {
+		compatible = "snps,dwcmshc-sdhci";
+		reg = <0x0 0x40180000 0x0 0x2000>;
+		interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
+		/* clocks = <&emmcclk>; */
+		bus-width = <8>;
+		sdhci,auto-cmd12;
+	};
+	sdhci1: sdhci@40190000 {
+		compatible = "snps,dwcmshc-sdhci";
+		reg = <0x0 0x40190000 0x0 0x2000>;
+		interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
+		/* clocks = <&emmcclk>; */
+		bus-width = <8>;
+		sdhci,auto-cmd12;
+	};
+	gmac0: gmac@40120000 {
+		compatible = "nuvoton,nua3500-gmac";
+		reg = <0x0 0x40120000 0x0 0x10000>;
+		interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "gmac0irq";
+		status = "disabled";
+		reset-names = "stmmaceth";
+		clock-names = "stmmaceth";
+		mdio {
+			compatible = "snps,dwmac-mdio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+
+	};
+	gmac1: gmac@40130000 {
+		compatible = "nuvoton,nua3500-gmac";
+		reg = <0x0 0x40130000 0x0 0x10000>;
+		interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "gmac1irq";
+		status = "disabled";
+		reset-names = "stmmaceth";
+		clock-names = "stmmaceth";
+		mdio {
+			compatible = "snps,dwmac-mdio";
+			#address-cells = <1>;
+			#size-cells = <0>;
+		};
+	};
+#endif
+};
