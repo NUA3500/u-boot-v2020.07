@@ -286,6 +286,7 @@ config ASPEED_AST2500_PINCTRL
 
 endif
 
+source "drivers/pinctrl/nuvoton/Kconfig"
 source "drivers/pinctrl/broadcom/Kconfig"
 source "drivers/pinctrl/exynos/Kconfig"
 source "drivers/pinctrl/intel/Kconfig"

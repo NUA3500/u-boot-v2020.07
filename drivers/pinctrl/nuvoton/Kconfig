@@ -1,0 +1,13 @@
+config PINCTRL_NUA3500
+	bool "NUVOTON NUA3500 pin control drivers"
+	depends on PINCTRL_GENERIC
+	default y
+	help
+	  Enable support pin control functions for NVT SoCs.
+
+config SPL_PINCTRL_NUA3500
+	bool "Support NUVOTON NUA3500 pin controllers in SPL"
+	depends on SPL_PINCTRL_GENERIC
+	default y
+	help
+	  This option is an SPL-variant of the PINCTRL_NVT option.

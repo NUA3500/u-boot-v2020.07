@@ -10,10 +10,14 @@
  * http://www.opensource.org/licenses/gpl-license.html
  * http://www.gnu.org/copyleft/gpl.html
  */
+/dts-v1/;
 
 #include <dt-bindings/interrupt-controller/arm-gic.h>
 
-#include "dt-bindings/input/input.h"
+#include <dt-bindings/input/input.h>
+
+#include <dt-bindings/clock/nua3500-clk.h>
+#include <dt-bindings/pinctrl/nua3500-pinfunc.h>
 
 //#define ENABLE_PSCI
 /{
@@ -84,7 +88,6 @@
 	memory@80000000 {
 		device_type = "memory";
 		reg = <0x00000000 0x80000000 0 0x8000000>; /* DRAM space - 1, size : 1 GB DRAM */
-		//reg = <0x00000000 0x80000000 0 0x4000000>; /* DRAM space - 1, size : 64MB */
 	};
 
         timer {
@@ -109,7 +112,233 @@
 		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_RAW(0x13) | IRQ_TYPE_LEVEL_HIGH)>;
 	};
 
-#if 1
+	clk: clock-controller@40460200 {
+		compatible = "nuvoton,nua3500-clk", "syscon", "simple-mfd";
+		reg = <0x00000000 0x40460200 0x0 0x100>;
+		#clock-cells = <1>;
+		assigned-clocks = <&clk capll>, <&clk syspll>,
+				<&clk ddrpll>, <&clk apll>,
+				<&clk epll>, <&clk vpll>;
+		assigned-clock-rates =<1000000000>, <189000000>,
+				<266000000>, <200000000>,
+				<500000000>, <150000000>;
+		clock-pll-mode = <0>, <0>, <1>, <0>, <0>, <0>;
+		nuvoton,sys = <&sys>;
+	};
+
+	sys: system-management@40460000 {
+		compatible = "nuvoton, nua3500-sys", "syscon", "simple-mfd";
+		reg = <0x0  0x40460000  0x0  0x200>;
+	};
+
+	pinctrl: pinctrl {
+		compatible = "nuvoton,nua3500-pinctrl";
+		nuvoton,sys = <&sys>;
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+		status = "okay";
+
+		gpioa: gpioa@40040000 {
+			reg = <0x0 0x40040000 0 0x40>,
+			      <0x0 0x40040800 0 0x40>;
+			interrupts = <GIC_SPI  14 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpa_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpiob: gpiob@40040040 {
+			reg = <0x0 0x40040040 0 0x40>,
+			      <0x0 0x40040840 0 0x40>;
+			interrupts = <GIC_SPI  15 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpb_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpioc: gpioc@40040080 {
+			reg = <0x0 0x40040080 0 0x40>,
+			      <0x0 0x40040880 0 0x40>;
+			interrupts = <GIC_SPI  16 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpc_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpiod: gpiod@400400c0 {
+			reg = <0x0 0x400400C0 0 0x40>,
+			      <0x0 0x400408C0 0 0x40>;
+			interrupts = <GIC_SPI  17 IRQ_TYPE_LEVEL_HIGH>;
+			//clocks = <&clk gpd_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpioe: gpioe@40040100 {
+			reg = <0x0 0x40040100 0 0x40>,
+			      <0x0 0x40040900 0 0x40>;
+			interrupts = <GIC_SPI  73 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpe_gate>;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl 0 64 16>;
+			gpio-controller;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpiof: gpiof@40040140 {
+			reg = <0x0 0x40040140 0 0x40>,
+			      <0x0 0x40040940 0 0x40>;
+			interrupts = <GIC_SPI  74 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpf_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpiog: gpiog@40040180 {
+			reg = <0x0 0x40040180 0 0x40>,
+			      <0x0 0x40040980 0 0x40>;
+			interrupts = <GIC_SPI  75 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpg_gate>;
+			#gpio-cells = <2>;
+			gpio-ranges = <&pinctrl 0 96 16>;
+			gpio-controller;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpioh: gpioh@400401C0 {
+			reg = <0x0 0x400401C0 0 0x40>,
+			      <0x0 0x400409C0 0 0x40>;
+			interrupts = <GIC_SPI  76 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gph_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpioi: gpioi@40040200 {
+			reg = <0x0 0x40040200 0 0x40>,
+			      <0x0 0x40040A00 0 0x40>;
+			interrupts = <GIC_SPI  77 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpi_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpioj: gpioj@40040240 {
+			reg = <0x0 0x40040240 0 0x40>,
+			      <0x0 0x40040A40 0 0x40>;
+			interrupts = <GIC_SPI  78 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpj_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpiok: gpiok@40040280 {
+			reg = <0x0 0x40040280 0 0x40>,
+			      <0x0 0x40040A80 0 0x40>;
+			interrupts = <GIC_SPI  102 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpk_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpiol: gpiol@400402C0 {
+			reg = <0x0 0x400402C0 0 0x40>,
+			      <0x0 0x40040AC0 0 0x40>;
+			interrupts = <GIC_SPI  103 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpl_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpiom: gpiom@40040300 {
+			reg = <0x0 0x40040300 0 0x40>,
+			      <0x0 0x40040B00 0 0x40>;
+			interrupts = <GIC_SPI  104 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpm_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		gpion: gpion@40040340 {
+			reg = <0x0 0x40040340 0 0x40>,
+			      <0x0 0x40040B40 0 0x40>;
+			interrupts = <GIC_SPI  105 IRQ_TYPE_LEVEL_HIGH>;
+			clocks = <&clk gpn_gate>;
+			gpio-controller;
+			#gpio-cells = <2>;
+			interrupt-controller;
+			#interrupt-cells = <2>;
+		};
+
+		pcfg_default: pcfg-default {
+			//u-boot,dm-pre-reloc;
+			slew-rate = <0>;
+			input-schmitt-disable;
+			bias-disable;
+		};
+
+	sdhci0 {
+		pinctrl_sdhci0: sdhci0grp{
+			nuvoton,pins =
+				<SYS_GPC_MFPL_PC0MFP_eMMC0_CMD   &pcfg_default>,
+				<SYS_GPC_MFPL_PC1MFP_eMMC0_CLK   &pcfg_default>,
+				<SYS_GPC_MFPL_PC2MFP_eMMC0_DAT0  &pcfg_default>,
+				<SYS_GPC_MFPL_PC3MFP_eMMC0_DAT1  &pcfg_default>,
+				<SYS_GPC_MFPL_PC4MFP_eMMC0_DAT2  &pcfg_default>,
+				<SYS_GPC_MFPL_PC5MFP_eMMC0_DAT3  &pcfg_default>,
+				<SYS_GPC_MFPL_PC6MFP_SD0_nCD     &pcfg_default>,
+				<SYS_GPC_MFPL_PC7MFP_SD0_WP      &pcfg_default>,
+				<SYS_GPC_MFPH_PC8MFP_eMMC0_DAT4  &pcfg_default>,
+				<SYS_GPC_MFPH_PC9MFP_eMMC0_DAT5  &pcfg_default>,
+				<SYS_GPC_MFPH_PC10MFP_eMMC0_DAT6 &pcfg_default>,
+				<SYS_GPC_MFPH_PC11MFP_eMMC0_DAT7 &pcfg_default>;
+		};
+	};
+
+	sdhci1 {
+		pinctrl_sdhci1: sdhci1grp{
+			nuvoton,pins =
+				<SYS_GPJ_MFPL_PJ0MFP_eMMC1_DAT4  &pcfg_default>,
+				<SYS_GPJ_MFPL_PJ1MFP_eMMC1_DAT5  &pcfg_default>,
+				<SYS_GPJ_MFPL_PJ2MFP_eMMC1_DAT6  &pcfg_default>,
+				<SYS_GPJ_MFPL_PJ3MFP_eMMC1_DAT7  &pcfg_default>,
+				<SYS_GPJ_MFPL_PJ4MFP_SD1_WP      &pcfg_default>,
+				<SYS_GPJ_MFPL_PJ5MFP_SD1_nCD     &pcfg_default>,
+				<SYS_GPJ_MFPL_PJ6MFP_eMMC1_CMD   &pcfg_default>,
+				<SYS_GPJ_MFPL_PJ7MFP_eMMC1_CLK   &pcfg_default>,
+				<SYS_GPJ_MFPH_PJ8MFP_eMMC1_DAT0  &pcfg_default>,
+				<SYS_GPJ_MFPH_PJ9MFP_eMMC1_DAT1  &pcfg_default>,
+				<SYS_GPJ_MFPH_PJ10MFP_eMMC1_DAT2 &pcfg_default>,
+				<SYS_GPJ_MFPH_PJ11MFP_eMMC1_DAT3 &pcfg_default>;
+                };
+        };
+	};
+
 	uart0: serial@40700000 {
 		compatible = "nuvoton,nua3500-uart";
 		reg = <0x0 0x40700000 0x0 0x10000>;
@@ -118,9 +347,8 @@
 		pdma-enable = <0>;
 		status = "okay";
 	};
-#endif
 
-        ehci0: ehci@40140000 {
+	ehci0: ehci@40140000 {
 		compatible = "nuvoton,nua3500-ehci0";
 		reg = <0x0 0x40140000 0x0 0x1000>;
 		interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
@@ -280,6 +508,9 @@
 	};
 
 	sdhci0: sdhci@40180000 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_sdhci0>;
+		//u-boot,dm-pre-reloc;
 		compatible = "snps,dwcmshc-sdhci";
 		reg = <0x0 0x40180000 0x0 0x2000>;
 		interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
@@ -288,8 +519,23 @@
 		max-frequency = <200000000>;
 		sdhci,auto-cmd12;
 		no-1-8-v;
-		status = "disabled";
-        };
+		status = "okay";
+	};
+
+	sdhci1: sdhci@40190000 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_sdhci1>;
+		//u-boot,dm-pre-reloc;
+		compatible = "snps,dwcmshc-sdhci";
+		reg = <0x0 0x40180000 0x0 0x2000>;
+		interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
+		/* clocks = <&emmcclk>; */
+		bus-width = <4>;
+		max-frequency = <200000000>;
+		sdhci,auto-cmd12;
+		no-1-8-v;
+		status = "okay";
+	};
 
 	hwsem: hwspinlock@40380000 {
 		compatible = "nuvoton,nua3500-hwsem";
@@ -305,101 +551,4 @@
 		#mbox-cells = <1>;
 		status = "disabled";
 	};
-
-#if 0
-        sdhci1: sdhci@40190000 {
-		compatible = "snps,dwcmshc-sdhci";
-		reg = <0x0 0x40190000 0x0 0x2000>;
-		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
-		bus-width = <4>;
-		max-frequency = <100000000>;
-		status = "disabled";
-		no-1-8-v;
-	};
-#if 0
-	dma0: dma@40080000 {
-		compatible = "nuvoton,nua3500-dma";
-		reg = <0x0 0x40080000 0x0 0x2000>;
-		interrupts = <GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-	};
-	dma1: dma@40090000 {
-		compatible = "nuvoton,nua3500-dma";
-		reg = <0x0 0x40090000 0x0 0x2000>;
-		interrupts = <GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-	};
-	dma2: dma@400A0000 {
-		compatible = "nuvoton,nua3500-dma";
-		reg = <0x0 0x400A0000 0x0 0x2000>;
-		interrupts = <GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-	};
-	dma3: dma@400B0000 {
-		compatible = "nuvoton,nua3500-dma";
-		reg = <0x0 0x400B0000 0x0 0x2000>;
-		interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-	};
-#else
-	dma@40080000 {
-		compatible = "nuvoton,nuc980-dma";
-		reg = <0x0 0x40080000 0x0 0x2000>,
-					<0x0 0x40090000 0x0 0x2000>,
-					<0x0 0x400A0000 0x0 0x2000>,
-					<0x0 0x400B0000 0x0 0x2000>;
-		interrupts =	<GIC_SPI 50 IRQ_TYPE_LEVEL_HIGH>,
-									<GIC_SPI 51 IRQ_TYPE_LEVEL_HIGH>,
-									<GIC_SPI 74 IRQ_TYPE_LEVEL_HIGH>,
-									<GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-	};
-#endif
-
-	sdhci0: sdhci@40180000 {
-		compatible = "snps,dwcmshc-sdhci";
-		reg = <0x0 0x40180000 0x0 0x2000>;
-		interrupts = <GIC_SPI 61 IRQ_TYPE_LEVEL_HIGH>;
-		/* clocks = <&emmcclk>; */
-		bus-width = <8>;
-		sdhci,auto-cmd12;
-	};
-	sdhci1: sdhci@40190000 {
-		compatible = "snps,dwcmshc-sdhci";
-		reg = <0x0 0x40190000 0x0 0x2000>;
-		interrupts = <GIC_SPI 62 IRQ_TYPE_LEVEL_HIGH>;
-		/* clocks = <&emmcclk>; */
-		bus-width = <8>;
-		sdhci,auto-cmd12;
-	};
-	gmac0: gmac@40120000 {
-		compatible = "nuvoton,nua3500-gmac";
-		reg = <0x0 0x40120000 0x0 0x10000>;
-		interrupts = <GIC_SPI 55 IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-names = "gmac0irq";
-		status = "disabled";
-		reset-names = "stmmaceth";
-		clock-names = "stmmaceth";
-		mdio {
-			compatible = "snps,dwmac-mdio";
-			#address-cells = <1>;
-			#size-cells = <0>;
-		};
-
-	};
-	gmac1: gmac@40130000 {
-		compatible = "nuvoton,nua3500-gmac";
-		reg = <0x0 0x40130000 0x0 0x10000>;
-		interrupts = <GIC_SPI 56 IRQ_TYPE_LEVEL_HIGH>;
-		interrupt-names = "gmac1irq";
-		status = "disabled";
-		reset-names = "stmmaceth";
-		clock-names = "stmmaceth";
-		mdio {
-			compatible = "snps,dwmac-mdio";
-			#address-cells = <1>;
-			#size-cells = <0>;
-		};
-	};
-#endif
 };

@@ -614,6 +614,18 @@ config MMC_SDHCI_TANGIER
 
 	  If unsure, say N.
 
+config MMC_SDHCI_DWCMSHC
+	bool "SDHCI support for DesignWare Cores Mobile SDHCI controller"
+	depends on MMC_SDHCI && OF_CONTROL && BLK
+	help
+	  This selects support for SDHCI controller on NUA3500
+	  SoC.
+
+          If you're using an DesignWare Cores Mobile Storage
+	  Host Controller, say Y here.
+
+          If unsure, say N.
+
 config MMC_SDHCI_TEGRA
 	bool "SDHCI platform support for the Tegra SD/MMC Controller"
 	depends on ARCH_TEGRA
