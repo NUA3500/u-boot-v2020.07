@@ -14,6 +14,8 @@ config NUA3500
 config TARGET_NUA3500
 	bool "Nuvoton NUA3500"
 	select ARM64
+	select DM
+	select DM_ETH
 	help
 	  The Nuvoton NUA3500 is a ARM64-based MPU with a dual-core Cortex-A35.
 	  including UART, SPI, USB, SD, eMMC, NAND, EPWM,

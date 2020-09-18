@@ -266,6 +266,7 @@ int designware_eth_send(struct udevice *dev, void *packet, int length);
 int designware_eth_recv(struct udevice *dev, int flags, uchar **packetp);
 int designware_eth_free_pkt(struct udevice *dev, uchar *packet,
 				   int length);
+int designware_eth_start(struct udevice *dev);
 void designware_eth_stop(struct udevice *dev);
 int designware_eth_write_hwaddr(struct udevice *dev);
 #endif

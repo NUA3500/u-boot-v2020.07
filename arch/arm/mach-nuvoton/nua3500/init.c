@@ -31,6 +31,19 @@ int show_board_info(void);
 
 #define SYS_CHIPCFG	0x404601F4
 
+int timer_init(void)
+{
+	unsigned long freq = 12000000;
+
+	/* Update clock frequency */
+	asm volatile("msr cntfrq_el0, %0" : : "r" (freq) : "memory");
+
+	gd->arch.tbl = 0;
+	gd->arch.tbu = 0;
+
+	return 0;
+}
+
 int dram_init(void)
 {
 	unsigned int ddr_size;
@@ -158,4 +171,3 @@ int mach_cpu_init(void)
 	return 0;
 }
 #endif
-

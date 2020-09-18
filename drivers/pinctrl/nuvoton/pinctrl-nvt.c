@@ -162,7 +162,6 @@ static int nvt_pinconf_set(struct nvt_pinctrl_priv *priv,
 {
 	int rc;
 
-	printf("%s\n", __func__);
 	switch (param) {
 	case PIN_CONFIG_BIAS_DISABLE:
 	case PIN_CONFIG_BIAS_PULL_UP:
@@ -262,7 +261,6 @@ static int nvt_pinctrl_set_state(struct udevice *dev,
 		debug("%s: unsupported pins array count %d\n", __func__, size);
 		return -EINVAL;
 	}
-	printf("size=%d\n", size);
 
 	for (i = 0; i < size; i++)
 		cells[i] = fdt32_to_cpu(data[i]);

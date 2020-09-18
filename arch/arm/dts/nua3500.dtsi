@@ -127,8 +127,14 @@
 	};
 
 	sys: system-management@40460000 {
-		compatible = "nuvoton, nua3500-sys", "syscon", "simple-mfd";
+		compatible = "nuvoton,nua3500-sys", "syscon", "simple-mfd";
 		reg = <0x0  0x40460000  0x0  0x200>;
+	};
+
+	reset: reset-controller {
+		compatible = "nuvoton,nua3500-reset";
+		nuvoton,nua3500-sys = <&sys>;
+		#reset-cells = <1>;
 	};
 
 	pinctrl: pinctrl {
@@ -302,41 +308,62 @@
 			bias-disable;
 		};
 
-	sdhci0 {
-		pinctrl_sdhci0: sdhci0grp{
-			nuvoton,pins =
-				<SYS_GPC_MFPL_PC0MFP_eMMC0_CMD   &pcfg_default>,
-				<SYS_GPC_MFPL_PC1MFP_eMMC0_CLK   &pcfg_default>,
-				<SYS_GPC_MFPL_PC2MFP_eMMC0_DAT0  &pcfg_default>,
-				<SYS_GPC_MFPL_PC3MFP_eMMC0_DAT1  &pcfg_default>,
-				<SYS_GPC_MFPL_PC4MFP_eMMC0_DAT2  &pcfg_default>,
-				<SYS_GPC_MFPL_PC5MFP_eMMC0_DAT3  &pcfg_default>,
-				<SYS_GPC_MFPL_PC6MFP_SD0_nCD     &pcfg_default>,
-				<SYS_GPC_MFPL_PC7MFP_SD0_WP      &pcfg_default>,
-				<SYS_GPC_MFPH_PC8MFP_eMMC0_DAT4  &pcfg_default>,
-				<SYS_GPC_MFPH_PC9MFP_eMMC0_DAT5  &pcfg_default>,
-				<SYS_GPC_MFPH_PC10MFP_eMMC0_DAT6 &pcfg_default>,
-				<SYS_GPC_MFPH_PC11MFP_eMMC0_DAT7 &pcfg_default>;
+		sdhci0 {
+			pinctrl_sdhci0: sdhci0grp{
+				nuvoton,pins =
+					<SYS_GPC_MFPL_PC0MFP_eMMC0_CMD   &pcfg_default>,
+					<SYS_GPC_MFPL_PC1MFP_eMMC0_CLK   &pcfg_default>,
+					<SYS_GPC_MFPL_PC2MFP_eMMC0_DAT0  &pcfg_default>,
+					<SYS_GPC_MFPL_PC3MFP_eMMC0_DAT1  &pcfg_default>,
+					<SYS_GPC_MFPL_PC4MFP_eMMC0_DAT2  &pcfg_default>,
+					<SYS_GPC_MFPL_PC5MFP_eMMC0_DAT3  &pcfg_default>,
+					<SYS_GPC_MFPL_PC6MFP_SD0_nCD     &pcfg_default>,
+					<SYS_GPC_MFPL_PC7MFP_SD0_WP      &pcfg_default>,
+					<SYS_GPC_MFPH_PC8MFP_eMMC0_DAT4  &pcfg_default>,
+					<SYS_GPC_MFPH_PC9MFP_eMMC0_DAT5  &pcfg_default>,
+					<SYS_GPC_MFPH_PC10MFP_eMMC0_DAT6 &pcfg_default>,
+					<SYS_GPC_MFPH_PC11MFP_eMMC0_DAT7 &pcfg_default>;
+			};
 		};
-	};
 
-	sdhci1 {
-		pinctrl_sdhci1: sdhci1grp{
-			nuvoton,pins =
-				<SYS_GPJ_MFPL_PJ0MFP_eMMC1_DAT4  &pcfg_default>,
-				<SYS_GPJ_MFPL_PJ1MFP_eMMC1_DAT5  &pcfg_default>,
-				<SYS_GPJ_MFPL_PJ2MFP_eMMC1_DAT6  &pcfg_default>,
-				<SYS_GPJ_MFPL_PJ3MFP_eMMC1_DAT7  &pcfg_default>,
-				<SYS_GPJ_MFPL_PJ4MFP_SD1_WP      &pcfg_default>,
-				<SYS_GPJ_MFPL_PJ5MFP_SD1_nCD     &pcfg_default>,
-				<SYS_GPJ_MFPL_PJ6MFP_eMMC1_CMD   &pcfg_default>,
-				<SYS_GPJ_MFPL_PJ7MFP_eMMC1_CLK   &pcfg_default>,
-				<SYS_GPJ_MFPH_PJ8MFP_eMMC1_DAT0  &pcfg_default>,
-				<SYS_GPJ_MFPH_PJ9MFP_eMMC1_DAT1  &pcfg_default>,
-				<SYS_GPJ_MFPH_PJ10MFP_eMMC1_DAT2 &pcfg_default>,
-				<SYS_GPJ_MFPH_PJ11MFP_eMMC1_DAT3 &pcfg_default>;
-                };
-        };
+		sdhci1 {
+			pinctrl_sdhci1: sdhci1grp{
+				nuvoton,pins =
+					<SYS_GPJ_MFPL_PJ0MFP_eMMC1_DAT4  &pcfg_default>,
+					<SYS_GPJ_MFPL_PJ1MFP_eMMC1_DAT5  &pcfg_default>,
+					<SYS_GPJ_MFPL_PJ2MFP_eMMC1_DAT6  &pcfg_default>,
+					<SYS_GPJ_MFPL_PJ3MFP_eMMC1_DAT7  &pcfg_default>,
+					<SYS_GPJ_MFPL_PJ4MFP_SD1_WP      &pcfg_default>,
+					<SYS_GPJ_MFPL_PJ5MFP_SD1_nCD     &pcfg_default>,
+					<SYS_GPJ_MFPL_PJ6MFP_eMMC1_CMD   &pcfg_default>,
+					<SYS_GPJ_MFPL_PJ7MFP_eMMC1_CLK   &pcfg_default>,
+					<SYS_GPJ_MFPH_PJ8MFP_eMMC1_DAT0  &pcfg_default>,
+					<SYS_GPJ_MFPH_PJ9MFP_eMMC1_DAT1  &pcfg_default>,
+					<SYS_GPJ_MFPH_PJ10MFP_eMMC1_DAT2 &pcfg_default>,
+					<SYS_GPJ_MFPH_PJ11MFP_eMMC1_DAT3 &pcfg_default>;
+			};
+		};
+
+		gmac0 {
+			pinctrl_gmac0: gmac0grp{
+				nuvoton,pins =
+				<SYS_GPE_MFPL_PE0MFP_RGMII0_MDC    &pcfg_default>,
+				<SYS_GPE_MFPL_PE1MFP_RGMII0_MDIO   &pcfg_default>,
+				<SYS_GPE_MFPL_PE2MFP_RGMII0_TXCTL  &pcfg_default>,
+				<SYS_GPE_MFPL_PE3MFP_RGMII0_TXD0   &pcfg_default>,
+				<SYS_GPE_MFPL_PE4MFP_RGMII0_TXD1   &pcfg_default>,
+				<SYS_GPE_MFPL_PE5MFP_RGMII0_RXCLK  &pcfg_default>,
+				<SYS_GPE_MFPL_PE6MFP_RGMII0_RXCTL  &pcfg_default>,
+				<SYS_GPE_MFPL_PE7MFP_RGMII0_RXD0   &pcfg_default>,
+				<SYS_GPE_MFPH_PE8MFP_RGMII0_RXD1   &pcfg_default>,
+				<SYS_GPE_MFPH_PE9MFP_RGMII0_RXD2   &pcfg_default>,
+				<SYS_GPE_MFPH_PE10MFP_RGMII0_RXD3  &pcfg_default>,
+				<SYS_GPE_MFPH_PE11MFP_RGMII0_TXCLK &pcfg_default>,
+				<SYS_GPE_MFPH_PE12MFP_RGMII0_TXD2  &pcfg_default>,
+				<SYS_GPE_MFPH_PE13MFP_RGMII0_TXD3  &pcfg_default>;
+			};
+		};
+
 	};
 
 	uart0: serial@40700000 {
@@ -353,120 +380,34 @@
 		reg = <0x0 0x40140000 0x0 0x1000>;
 		interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
-        };
+	};
 
-        ehci1: ehci@401C0000 {
+	ehci1: ehci@401C0000 {
 		compatible = "nuvoton,nua3500-ehci1";
 		reg = <0x0 0x401C0000 0x0 0x1000>;
 		interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
-        };
+	};
 
-        ohci0: ohci@40150000 {
+	ohci0: ohci@40150000 {
 		compatible = "nuvoton,nua3500-ohci0";
 		reg = <0x0 0x40150000 0x0 0x1000>;
 		interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
-        };
+	};
 
-        ohci1: ohci@401D0000 {
+	ohci1: ohci@401D0000 {
 		compatible = "nuvoton,nua3500-ohci1";
 		reg = <0x0 0x401D0000 0x0 0x1000>;
 		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
-        };
-
-        /* H/W bug. Non-secure cannot access! */
-        ohci2: ohci@40170000 {
-		compatible = "nuvoton,nua3500-ohci2";
-		reg = <0x0 0x40170000 0x0 0x1000>;
-		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-        };
-
-	/* Crypto engine */
-        crypto: crpt@40300000 {
-		compatible = "nuvoton,nua3500-crypto";
-		reg = <0x0 0x40300000 0x0 0x1000>;
-		interrupts = <GIC_SPI 39 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-        };
-
-	/* Key Store */
-        key_store: ks@40340800 {
-		compatible = "nuvoton,nua3500-ks";
-		reg = <0x0 0x40340800 0x0 0x800>;
-		interrupts = <GIC_SPI 41 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-        };
-
-	/* TRNG */
-        trng: trng@40B90000 {
-		compatible = "nuvoton,nua3500-trng";
-		reg = <0x0 0x40B90000 0x0 0x400>;
-		interrupts = <GIC_SPI 40 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
-        };
+	};
 
 	rtc: rtc@40410000 {
 		compatible = "nuvoton,nua3500-rtc";
 		reg = <0x0 0x40410000 0x0 0x10000>;
 		interrupts = <GIC_SPI 5 IRQ_TYPE_EDGE_RISING>;
 		status = "disabled";
-	};
-
-
-	keypad: keypad@404A0000 {
-		compatible = "nuvoton,nua3500-kpi";
-
-		reg = <0x0 0x404A0000 0x0 0x10000>;
-		interrupts = <GIC_SPI 79 IRQ_TYPE_EDGE_RISING>;
-
-		keypad,num-rows = <4>;
-		keypad,num-columns = <4>;
-
-		linux,keymap = <MATRIX_KEY(0x00, 0x02, KEY_F) /* key_forward */
-		MATRIX_KEY(0x00, 0x03, KEY_HOME) /* key_home */
-		MATRIX_KEY(0x01, 0x00, KEY_A) /* key_contacts */
-		MATRIX_KEY(0x01, 0x01, KEY_1) /* key_1 */
-		MATRIX_KEY(0x01, 0x02, KEY_2) /* key_2 */
-		MATRIX_KEY(0x01, 0x03, KEY_3) /* key_3 */
-		MATRIX_KEY(0x02, 0x00, KEY_P) /* key_phone */
-		MATRIX_KEY(0x02, 0x01, KEY_4) /* key_4 */
-		MATRIX_KEY(0x02, 0x02, KEY_5) /* key_5 */
-		MATRIX_KEY(0x02, 0x03, KEY_6) /* key_6 */
-		MATRIX_KEY(0x03, 0x00, KEY_C) /* key_call_log */
-		MATRIX_KEY(0x03, 0x01, KEY_7) /* key_7 */
-		MATRIX_KEY(0x03, 0x02, KEY_8) /* key_8 */
-		MATRIX_KEY(0x03, 0x03, KEY_9) /* key_9 */
-		>;
-
-
-		/*
-		debounce setting:
-		0 = disable debounce
-		3 = debounce preiod is 8 clocks.
-		4 = debounce preiod is 16 clocks.
-		5 = debounce preiod is 32 clocks.
-		6 = debounce preiod is 64 clocks.
-		7 = debounce preiod is 128 clocks.
-		8 = debounce preiod is 256 clocks.
-		9 = debounce preiod is 512 clocks.
-		10 = debounce preiod is 1024 clocks.
-		11 = debounce preiod is 2048 clocks.
-		12 = debounce preiod is 4096 clocks.
-		13 = debounce preiod is 8192 clocks.
-		*/
-		debounce-period = <1>;
-
-		/* pre-scale is from 1 ~ 256 */
-		per-scale = <1>;
-
-		/* pre-scale divider is from 1 ~ 256 */
-		per-scalediv = <32>;
-
-		status = "disabled";
-
 	};
 
 	qspi0: qspi@40680000 {
@@ -537,18 +478,28 @@
 		status = "okay";
 	};
 
-	hwsem: hwspinlock@40380000 {
-		compatible = "nuvoton,nua3500-hwsem";
-		reg = <0x0 0x40380000 0x0 0x1000>;
-		status = "disabled";
+	gmac0: ethernet@40120000 {
+		compatible = "nuvoton,nua3500-gmac";
+		reg = <0x0 0x40120000 0x0 0x10000>;
+		interrupts = <GIC_SPI 23 IRQ_TYPE_LEVEL_HIGH>;
+		interrupt-names = "macirq";
+		mac-address = [ 00 11 22 33 44 55 ];
+		phy-mode = "rgmii";
+		nuvoton,nua3500-sys = <&sys>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_gmac0>;
+#if 0
+		clocks = <&clk emac0_gate>, <&clk epll_div8>;
+		clock-names = "stmmaceth", "ptp_ref";
+		resets = <&reset NUA3500_RESET_GMAC0>;
+		reset-names = "stmmaceth";
+#endif
+		mac-id = <0>;
+		status = "okay";
+		fixed-link {
+			speed = <1000>;
+			full-duplex;
+		};
 	};
 
-	wormhole: mailbox@403A0000 {
-		compatible = "nuvoton,nua3500-wormhole";
-		reg = <0x0 0x403A0000 0x0 0x1000>;
-		interrupts = <GIC_SPI 4 IRQ_TYPE_LEVEL_HIGH>;
-		wakeup-source;
-		#mbox-cells = <1>;
-		status = "disabled";
-	};
 };
