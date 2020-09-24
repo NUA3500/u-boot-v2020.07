@@ -33,30 +33,30 @@
 
 		/* We have 1 clusters having 2 Cortex-A35 cores */
 		cpu0: cpu@0 {
-                        device_type = "cpu";
-                        compatible = "arm,cortex-a35";
-                        reg = <0x0 0x0>;
-			#ifdef ENABLE_PSCI
+			device_type = "cpu";
+			compatible = "arm,cortex-a35";
+			reg = <0x0 0x0>;
+#ifdef ENABLE_PSCI
 			enable-method = "psci";
-			#else
-                        enable-method = "spin-table";
-                        cpu-release-addr = <0x0 0x8000fff8>;
-			#endif
+#else
+			enable-method = "spin-table";
+			cpu-release-addr = <0x0 0x8000fff8>;
+#endif
 			next-level-cache = <&L2_0>;
-                };
+		};
 #if 0
-                cpu1: cpu@1 {
-                        device_type = "cpu";
-                        compatible = "arm,cortex-a35";
-                        reg = <0x0 0x1>;
-			#ifdef ENABLE_PSCI
+		cpu1: cpu@1 {
+			device_type = "cpu";
+			compatible = "arm,cortex-a35";
+			reg = <0x0 0x1>;
+#ifdef ENABLE_PSCI
 			enable-method = "psci";
-			#else
-                        enable-method = "spin-table";
-                        cpu-release-addr = <0x0 0x8000fff8>;
-			#endif
+#else
+			enable-method = "spin-table";
+			cpu-release-addr = <0x0 0x8000fff8>;
+#endif
 			next-level-cache = <&L2_0>;
-                };
+		};
 #endif
 		L2_0: l2-cache0 {
 			compatible = "cache";
@@ -65,41 +65,28 @@
 	};
 
 #if 0
-        pmu {
-                interrupt-affinity = <&cpu0>, <&cpu1>;
-        };
+	pmu {
+		interrupt-affinity = <&cpu0>, <&cpu1>;
+	};
 #endif
 
 #ifdef ENABLE_PSCI
 	psci {
-                compatible = "arm,psci";
+		compatible = "arm,psci";
 		cpu_on = <0xC4000003>;
-                method = "smc";
-        };
+			method = "smc";
+			};
 #endif
 
-#if 0
-        pmu {
-                compatible = "arm,armv8-pmuv3";
-                interrupts = <GIC_PPI 7 (GIC_CPU_MASK_SIMPLE(6) | IRQ_TYPE_LEVEL_HIGH)>;
-		interrupt-affinity = <&A35_0>, <&A35_1>;
-        };
-#endif
-
-	memory@80000000 {
-		device_type = "memory";
-		reg = <0x00000000 0x80000000 0 0x8000000>; /* DRAM space - 1, size : 1 GB DRAM */
+	timer {
+		compatible = "arm,armv8-timer";
+		interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Physical Secure */
+				<GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Physical Non-Secure */
+				<GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Virtual */
+				<GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>; /* Hypervisor */
+		clock-frequency = <12000000>;
+		interrupt-parent = <&gic>;
 	};
-
-        timer {
-                compatible = "arm,armv8-timer";
-                interrupts = <GIC_PPI 13 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Physical Secure */
-                                <GIC_PPI 14 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Physical Non-Secure */
-                                <GIC_PPI 11 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>, /* Virtual */
-                                <GIC_PPI 10 (GIC_CPU_MASK_SIMPLE(4) | IRQ_TYPE_LEVEL_LOW)>; /* Hypervisor */
-                clock-frequency = <12000000>;
-                interrupt-parent = <&gic>;
-        };
 
 	gic: interrupt-controller@50800000 {
 		compatible = "arm,gic-400";
@@ -107,9 +94,9 @@
 		interrupt-parent = <&gic>;
 		interrupt-controller;
 		reg =   <0x0 0x50801000 0 0x1000>, /* GICD */
-                        <0x0 0x50802000 0 0x2000>, /* GICC */
-                        <0x0 0x50804000 0 0x2000>, /* GICH */
-                        <0x0 0x50806000 0 0x2000>; /* GICV */
+			<0x0 0x50802000 0 0x2000>, /* GICC */
+			<0x0 0x50804000 0 0x2000>, /* GICH */
+			<0x0 0x50806000 0 0x2000>; /* GICV */
 		interrupts = <GIC_PPI 9 (GIC_CPU_MASK_RAW(0x13) | IRQ_TYPE_LEVEL_HIGH)>;
 	};
 

@@ -1,0 +1,15 @@
+if NUA3500
+
+choice
+	prompt  "Nuvoton NUA3500 board select"
+	optional
+
+config TARGET_NUA3500_EVB
+	bool "NUA3500 EVB"
+
+config TARGET_NUA3500_IOT
+	bool "NUA3500 IoT Board"
+
+endchoice
+
+endif

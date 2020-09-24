@@ -152,7 +152,7 @@ config RESET_NUA3500
 	select REGMAP
 	select SYSCON
 	bool "NUA3500 Reset Driver"
-	depends on DM_RESET && TARGET_NUA3500
+	depends on DM_RESET && NUA3500
 	default y
 	help
 	  Support for reset controller on NUA3500 SoC

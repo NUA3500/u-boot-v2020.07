@@ -1,4 +1,4 @@
-if TARGET_NUA3500
+if NUA3500
 
 config SYS_BOARD
 	default "nua3500"
@@ -10,4 +10,3 @@ config SYS_CONFIG_NAME
 	default "nua3500"
 
 endif
-
