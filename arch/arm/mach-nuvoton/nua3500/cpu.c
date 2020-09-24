@@ -12,17 +12,11 @@
 
 int arch_cpu_init(void)
 {
-/* TODO : CWWeng 2020/7/13
-	icache_enable();
-*/
 
 	return 0;
 }
 
 void enable_caches(void)
 {
-	/* Enable D-cache. I-cache is already enabled in start.S */
-/* TODO : CWWeng 2020/7/13
-	dcache_enable();
-*/
+	icache_enable();
 }

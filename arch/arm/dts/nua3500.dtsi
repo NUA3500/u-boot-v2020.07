@@ -18,6 +18,7 @@
 
 #include <dt-bindings/clock/nua3500-clk.h>
 #include <dt-bindings/pinctrl/nua3500-pinfunc.h>
+#include <dt-bindings/reset/nuvoton,nua3500-reset.h>
 
 //#define ENABLE_PSCI
 /{
@@ -491,9 +492,9 @@
 #if 0
 		clocks = <&clk emac0_gate>, <&clk epll_div8>;
 		clock-names = "stmmaceth", "ptp_ref";
+#endif
 		resets = <&reset NUA3500_RESET_GMAC0>;
 		reset-names = "stmmaceth";
-#endif
 		mac-id = <0>;
 		status = "okay";
 		fixed-link {
