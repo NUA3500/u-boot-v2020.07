@@ -10,6 +10,7 @@
 #include <reset-uclass.h>
 #include <dm/device_compat.h>
 #include <asm/io.h>
+#include <asm/system.h>
 #include <linux/bitops.h>
 #include <syscon.h>
 #include <regmap.h>
@@ -34,22 +35,26 @@ static int nua3500_reset_free(struct reset_ctl *reset_ctl)
 
 static void nua3500_reg_lock(struct nua3500_reset_priv *priv)
 {
-	regmap_write(priv->base, REG_SYS_RLKTZS, 1);
+	u32 el = current_el();
+	u32 offset = el == 3 ? REG_SYS_RLKTZS : REG_SYS_RLKTZNS;
+
+	regmap_write(priv->base, offset, 1);
 }
 
 static int nua3500_reg_unlock(struct nua3500_reset_priv *priv)
 {
-	u32 reg;
+	u32 reg, el = current_el();
+	u32 offset = el == 3 ? REG_SYS_RLKTZS : REG_SYS_RLKTZNS;
 
-	regmap_read(priv->base, REG_SYS_RLKTZS, &reg);
+	regmap_read(priv->base, offset, &reg);
 
 	if (reg)
 		return 1;
 	do {
-		regmap_write(priv->base, REG_SYS_RLKTZS, 0x59);
-		regmap_write(priv->base, REG_SYS_RLKTZS, 0x16);
-		regmap_write(priv->base, REG_SYS_RLKTZS, 0x88);
-		regmap_read(priv->base, REG_SYS_RLKTZS, &reg);
+		regmap_write(priv->base, offset, 0x59);
+		regmap_write(priv->base, offset, 0x16);
+		regmap_write(priv->base, offset, 0x88);
+		regmap_read(priv->base, offset, &reg);
 	} while (reg != 1);
 
 	return 0;

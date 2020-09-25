@@ -17,6 +17,7 @@
 #include <asm/sections.h>
 #include <dm/uclass.h>
 #include <asm/io.h>
+#include <asm/system.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -48,9 +49,11 @@ struct mm_region *mem_map = nua3500_mem_map;
 int timer_init(void)
 {
 	unsigned long freq = 12000000;
+	unsigned int el = current_el();
 
-	/* Update clock frequency */
-	asm volatile("msr cntfrq_el0, %0" : : "r" (freq) : "memory");
+	/* Set clock frequency if uboot is executing in EL3 */
+	if (el == 3)
+		asm volatile("msr cntfrq_el0, %0" : : "r" (freq) : "memory");
 
 	gd->arch.tbl = 0;
 	gd->arch.tbu = 0;
