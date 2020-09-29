@@ -11,8 +11,8 @@
 	model = "Nuvoton NUA3500 EVB board";
 	compatible = "nuvoton,nua3500";
 
-	chosen {
-		stdout-path = "serial0:9600n8";
+	aliases {
+
 	};
 
 	memory {
@@ -20,8 +20,13 @@
 		reg = <0x00000000 0x80000000 0 0x10000000>;
 	};
 
-	aliases {
-		serial0 = &uart0;
-	};
-
 };
+
+&uart0 {
+	status = "okay";
+};
+
+
+
+
+

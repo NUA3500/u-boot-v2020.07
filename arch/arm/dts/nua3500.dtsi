@@ -352,15 +352,24 @@
 			};
 		};
 
+		uart0 {
+			pinctrl_uart0: uart0grp{
+				nuvoton,pins =
+				<SYS_GPE_MFPH_PE14MFP_UART0_TXD    &pcfg_default>,
+				<SYS_GPE_MFPH_PE15MFP_UART0_RXD    &pcfg_default>;
+			};
+		};
+
 	};
 
 	uart0: serial@40700000 {
+		u-boot,dm-pre-reloc;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_uart0>;
 		compatible = "nuvoton,nua3500-uart";
 		reg = <0x0 0x40700000 0x0 0x10000>;
-		interrupts = <GIC_SPI 59 IRQ_TYPE_EDGE_RISING>;
-		port-number = <0>;
-		pdma-enable = <0>;
-		status = "okay";
+		id = <0>;
+		status = "disable";
 	};
 
 	ehci0: ehci@40140000 {
@@ -482,6 +491,7 @@
 #endif
 		resets = <&reset NUA3500_RESET_GMAC0>;
 		reset-names = "stmmaceth";
+
 		mac-id = <0>;
 		status = "okay";
 		fixed-link {
