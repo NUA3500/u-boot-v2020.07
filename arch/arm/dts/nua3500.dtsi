@@ -360,6 +360,14 @@
 			};
 		};
 
+		i2c0 {
+			pinctrl_i2c0: i2c0grp{
+				nuvoton,pins =
+				<SYS_GPC_MFPH_PC8MFP_I2C0_SDA    &pcfg_default>,
+				<SYS_GPC_MFPH_PC9MFP_I2C0_SCL    &pcfg_default>;
+			};
+		};
+
 	};
 
 	uart0: serial@40700000 {
@@ -369,7 +377,7 @@
 		compatible = "nuvoton,nua3500-uart";
 		reg = <0x0 0x40700000 0x0 0x10000>;
 		id = <0>;
-		status = "disable";
+		status = "disabled";
 	};
 
 	ehci0: ehci@40140000 {
@@ -404,6 +412,17 @@
 		compatible = "nuvoton,nua3500-rtc";
 		reg = <0x0 0x40410000 0x0 0x10000>;
 		interrupts = <GIC_SPI 5 IRQ_TYPE_EDGE_RISING>;
+		status = "disabled";
+	};
+
+	i2c0: i2c@40800000 {
+		compatible = "nuvoton,nua3500-i2c";
+		reg = <0x0 0x40800000 0x0 0x10000>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_i2c0>;
+		interrupts = <GIC_SPI 13 IRQ_TYPE_EDGE_RISING>;
+		clocks = <&clk i2c0_gate>;
+		clock-frequency = <100000>;
 		status = "disabled";
 	};
 

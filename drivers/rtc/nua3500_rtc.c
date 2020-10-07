@@ -130,13 +130,15 @@ static int nua3500_rtc_reset(struct udevice *dev)
 static int nua3500_rtc_probe(struct udevice *dev)
 {
 	struct nua3500_rtc_priv *priv = dev_get_priv(dev);
-	uint32_t val = readl(priv->base + REG_RTC_INIR);
+	uint32_t val;
 	//struct clk clk;
 	int ret;
 
 	priv->base = dev_read_addr(dev);
 	if (priv->base == FDT_ADDR_T_NONE)
 		return -EINVAL;
+
+	val = readl(priv->base + REG_RTC_INIR);
 
 	#if 0
 	ret = clk_get_by_index(dev, 0, &clk);
