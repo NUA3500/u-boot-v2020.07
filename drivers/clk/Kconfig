@@ -187,4 +187,12 @@ config SANDBOX_CLK_CCF
 	  Enable this option if you want to test the Linux kernel's Common
 	  Clock Framework [CCF] code in U-Boot's Sandbox clock driver.
 
+
+config NUA3500_CLK_CCF
+	bool "NUA350 Common Clock Framework [CCF] support "
+	depends on CLK
+	select CLK_CCF
+	help
+	  Enable the NUA350 clock driver.
+
 endmenu

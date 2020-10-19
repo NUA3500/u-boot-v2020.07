@@ -74,9 +74,50 @@
 	psci {
 		compatible = "arm,psci";
 		cpu_on = <0xC4000003>;
-			method = "smc";
-			};
+		method = "smc";
+	};
 #endif
+
+	clk_hxt:hxt {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <24000000>;
+		clock-output-names = "hxt_gate";
+	};
+
+	clk_lxt:lxt {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <32768>;
+		clock-output-names = "lxt_gate";
+	};
+
+	clk_hirc:hirc {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <12000000>;
+		clock-output-names = "hirc_gate";
+	};
+
+	clk_lirc:lirc {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <32000>;
+		clock-output-names = "lirc_gate";
+	};
+
+	clk_usbphy0:usbphy0 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <480000000>;
+		clock-output-names = "usbphy0";
+	};
+	clk_usbphy1:usbphy1 {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <480000000>;
+		clock-output-names = "usbphy1";
+	};
 
 	timer {
 		compatible = "arm,armv8-timer";
@@ -104,13 +145,8 @@
 		compatible = "nuvoton,nua3500-clk", "syscon", "simple-mfd";
 		reg = <0x00000000 0x40460200 0x0 0x100>;
 		#clock-cells = <1>;
-		assigned-clocks = <&clk capll>, <&clk syspll>,
-				<&clk ddrpll>, <&clk apll>,
-				<&clk epll>, <&clk vpll>;
-		assigned-clock-rates =<1000000000>, <189000000>,
-				<266000000>, <200000000>,
-				<500000000>, <150000000>;
-		clock-pll-mode = <0>, <0>, <1>, <0>, <0>, <0>;
+		clocks = <&clk_hxt> ,<&clk_lxt>, <&clk_hirc>, <&clk_lirc>, <&clk_usbphy0>, <&clk_usbphy1>;
+		clock-names = "hxt_gate", "lxt_gate", "hirc_gate", "lirc_gate", "usbphy0", "usbphy1";
 		nuvoton,sys = <&sys>;
 	};
 
@@ -170,7 +206,7 @@
 			reg = <0x0 0x400400C0 0 0x40>,
 			      <0x0 0x400408C0 0 0x40>;
 			interrupts = <GIC_SPI  17 IRQ_TYPE_LEVEL_HIGH>;
-			//clocks = <&clk gpd_gate>;
+			clocks = <&clk gpd_gate>;
 			gpio-controller;
 			#gpio-cells = <2>;
 			interrupt-controller;
