@@ -332,6 +332,27 @@
 			bias-disable;
 		};
 
+		nfi {
+			pinctrl_nfi0: nfi0grp{
+				nuvoton,pins =
+					<SYS_GPA_MFPL_PA0MFP_NAND_DATA0 &pcfg_default>,
+					<SYS_GPA_MFPL_PA1MFP_NAND_DATA1 &pcfg_default>,
+					<SYS_GPA_MFPL_PA2MFP_NAND_DATA2 &pcfg_default>,
+					<SYS_GPA_MFPL_PA3MFP_NAND_DATA3 &pcfg_default>,
+					<SYS_GPA_MFPL_PA4MFP_NAND_DATA4 &pcfg_default>,
+					<SYS_GPA_MFPL_PA5MFP_NAND_DATA5 &pcfg_default>,
+					<SYS_GPA_MFPL_PA6MFP_NAND_DATA6 &pcfg_default>,
+					<SYS_GPA_MFPL_PA7MFP_NAND_DATA7 &pcfg_default>,
+					<SYS_GPA_MFPH_PA8MFP_NAND_RDY   &pcfg_default>,
+					<SYS_GPA_MFPH_PA9MFP_NAND_nRE   &pcfg_default>,
+					<SYS_GPA_MFPH_PA10MFP_NAND_nWE  &pcfg_default>,
+					<SYS_GPA_MFPH_PA11MFP_NAND_CLE  &pcfg_default>,
+					<SYS_GPA_MFPH_PA12MFP_NAND_ALE  &pcfg_default>,
+					<SYS_GPA_MFPH_PA13MFP_NAND_nCS  &pcfg_default>,
+					<SYS_GPA_MFPH_PA14MFP_NAND_nWP  &pcfg_default>;
+			};
+		};
+
 		sdhci0 {
 			pinctrl_sdhci0: sdhci0grp{
 				nuvoton,pins =
@@ -498,6 +519,24 @@
 				reg = <0x80000 0x40000>;
 			};
 		};
+	};
+
+	nfi: nfi@401A0000 {
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_nfi0>;
+		compatible = "nuvoton,nua3500-nfi";
+		reg = <0x0 0x401A0000 0x0 0x1000>;
+		reg-names = "nfi";
+		interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;	/* 70-32 */
+		nuvoton,sys = <&sys>;
+		clocks = <&clk nand_gate>;
+		status = "okay";
+		nand-ecc-mode = "hw_oob_first";
+		nand-ecc-algo = "bch";
+		nand-bus-width = <8>;
+		nand-ecc-strength = <8>;
+		nand-ecc-step-size = <512>;
+		nand-on-flash-bbt;
 	};
 
 	sdhci0: sdhci@40180000 {

@@ -189,10 +189,10 @@ config SANDBOX_CLK_CCF
 
 
 config NUA3500_CLK_CCF
-	bool "NUA350 Common Clock Framework [CCF] support "
+	bool "NUA3500 Common Clock Framework [CCF] support "
 	depends on CLK
 	select CLK_CCF
 	help
-	  Enable the NUA350 clock driver.
+	  Enable the NUA3500 clock driver.
 
 endmenu

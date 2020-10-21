@@ -15,10 +15,6 @@ int board_late_init(void)
 	return 0;
 }
 
-void *board_fdt_blob_setup(void)
-{
-        return (void *)CONFIG_SYS_FDT_BASE;
-}
 
 int board_init(void)
 {
