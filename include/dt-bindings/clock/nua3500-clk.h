@@ -72,7 +72,7 @@
 #define	emac0_div	63
 #define	emac1_div	64
 #define	aclk0_div	65
-
-#define	clk_max		66
+#define	wdt1_gate	66
+#define	clk_max		67
 
 #endif

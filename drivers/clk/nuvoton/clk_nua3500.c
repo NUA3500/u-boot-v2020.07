@@ -39,18 +39,6 @@ struct __nua3500_ccf_ops {
 	int (*enable_clk)(struct __nua3500_clk_priv *pc, bool enable);
 };
 
-static u32 clk_id[clk_max] = {
-/*0 */ capll, syspll, ddrpll, apll, epll, vpll,
-/*6 */ hxt_gate, lxt_gate, hirc_gate, lirc_gate, ddr0_gate, ddr6_gate, sdh0_gate, sdh1_gate,
-/*14 */ nand_gate, usbh_gate, husbh0_gate, husbh1_gate, dcu_gate, emac0_gate, emac1_gate, rtc_gate,
-/*22 */ ddr_gate, i2c0_gate, i2c1_gate, i2c2_gate, i2c3_gate, i2c4_gate	,i2c5_gate, qspi0_gate,
-/*30 */ qspi1_gate, spi0_gate, spi1_gate, spi2_gate, spi3_gate, gpa_gate, gpb_gate, gpc_gate,
-/*38 */ gpd_gate, gpe_gate, gpf_gate, gpg_gate, gph_gate, gpi_gate, gpj_gate, gpk_gate,
-/*46 */ gpl_gate, gpm_gate, gpn_gate, ca35clk_mux, sysclk0_mux, sysclk1_mux, sdh0_mux, sdh1_mux,
-/*54 */ dcu_mux, dcup_mux, spi0_mux, spi1_mux, spi2_mux, spi3_mux, qspi0_mux, qspi1_mux,
-/*62 */ dcup_div, emac0_div, emac1_div, aclk0_div,
-};
-
 static const char * const clk_names[clk_max] = {
 /*0 */ "capll", "syspll", "ddrpll", "apll","epll", "vpll",
 /*6 */ "hxt_gate", "lxt_gate", "hirc_gate", "lirc_gate", "ddr0_gate", "ddr6_gate", "sdh0_gate", "sdh1_gate",
@@ -60,7 +48,7 @@ static const char * const clk_names[clk_max] = {
 /*38 */ "gpd_gate", "gpe_gate", "gpf_gate", "gpg_gate", "gph_gate", "gpi_gate", "gpj_gate", "gpk_gate",
 /*46 */ "gpl_gate", "gpm_gate", "gpn_gate", "ca35clk_mux", "sysclk0_mux", "sysclk1_mux", "sdh0_mux", "sdh1_mux",
 /*54 */ "dcu_mux", "dcup_mux", "spi0_mux", "spi1_mux", "spi2_mux", "spi3_mux", "qspi0_mux", "qspi1_mux",
-/*62 */ "dcup_div", "emac0_div", "emac1_div", "aclk0_div",
+/*62 */ "dcup_div", "emac0_div", "emac1_div", "aclk0_div", "wdt1_gate"
 };
 
 ulong hxt_hz = 0;

@@ -594,4 +594,14 @@
 		};
 	};
 
+	wdt1: wdt@40440000 {
+		compatible = "nuvoton,nua3500-wdt";
+		reg = <0x0 0x40440000 0x0 0x100>;
+		nuvoton,nua3500-sys = <&sys>;
+		nuvoton,clk = <&clk>;
+		clocks = <&clk wdt1_gate>;
+		clock-names = "wdt";
+		status = "okay";
+	};
+
 };

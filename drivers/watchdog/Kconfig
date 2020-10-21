@@ -210,4 +210,12 @@ config SPL_WDT
 	  Enable driver model for watchdog timer in SPL.
 	  This is similar to CONFIG_WDT in U-Boot.
 
+config WDT_NUA3500
+	bool "NUA3500 watchdog timer support"
+	depends on WDT
+	select REGMAP
+	imply WATCHDOG
+	help
+	  Enable this to support to watchdog timer on Nuvoton NUA3500.
+
 endmenu
