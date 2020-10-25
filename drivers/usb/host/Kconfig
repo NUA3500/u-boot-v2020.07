@@ -117,6 +117,13 @@ config USB_EHCI_HCD
 
 if USB_EHCI_HCD
 
+config USB_EHCI_NUA3500
+	bool "Support for Nuvoton NUA3500 on-chip EHCI USB controller"
+	depends on NUA3500
+	default y
+	---help---
+	  Enables support for the on-chip EHCI controller on NUA3500.
+
 config USB_EHCI_ATMEL
 	bool  "Support for Atmel on-chip EHCI USB controller"
 	depends on ARCH_AT91
@@ -234,6 +241,13 @@ config USB_OHCI_HCD
 	  based system where you're not sure, the "lspci -v" entry will list the
 	  right "prog-if" for your USB controller(s):  EHCI, OHCI, or UHCI.
 
+config SYS_USB_OHCI_MAX_ROOT_PORTS 
+	depends on USB_OHCI_HCD
+	default 8
+	hex "OHCI maximum root ports"
+	help
+	  The maximum number of OHCI root hub ports supported.
+
 config USB_OHCI_PCI
 	bool "Support for PCI-based OHCI USB controller"
 	depends on DM_USB
@@ -251,6 +265,13 @@ config USB_OHCI_GENERIC
 	select USB_HOST
 	---help---
 	  Enables support for generic OHCI controller.
+
+config USB_OHCI_NUA3500
+	bool "Support for Nuvoton NUA3500 on-chip OHCI USB controller"
+	depends on NUA3500
+	default y
+	---help---
+	  Enables support for the on-chip OHCI controller on NUA3500.
 
 config USB_OHCI_DA8XX
 	bool "Support for da850 OHCI USB controller"

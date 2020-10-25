@@ -425,6 +425,13 @@
 			};
 		};
 
+		ehci0 {
+			pinctrl_ehci0: ehci0grp{
+				nuvoton,pins =
+				<SYS_GPL_MFPH_PL12MFP_HSUSBH_PWREN  &pcfg_default>,
+				<SYS_GPL_MFPH_PL13MFP_HSUSBH_OVC    &pcfg_default>;
+			};
+		};
 	};
 
 	uart0: serial@40700000 {
@@ -440,28 +447,45 @@
 	ehci0: ehci@40140000 {
 		compatible = "nuvoton,nua3500-ehci0";
 		reg = <0x0 0x40140000 0x0 0x1000>;
+		clocks = <&clk husbh0_gate>;
+		nuvoton,sys = <&sys>;
 		interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
+		status = "okay";
 	};
 
-	ehci1: ehci@401C0000 {
+	ehci1:ehci@401C0000 {
 		compatible = "nuvoton,nua3500-ehci1";
 		reg = <0x0 0x401C0000 0x0 0x1000>;
+		clocks = <&clk husbh1_gate>;
+		nuvoton,sys = <&sys>;
 		interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 
-	ohci0: ohci@40150000 {
+	ohci0:ohci@40150000 {
 		compatible = "nuvoton,nua3500-ohci0";
 		reg = <0x0 0x40150000 0x0 0x1000>;
+		clocks = <&clk husbh0_gate>;
+		nuvoton,sys = <&sys>;
 		interrupts = <GIC_SPI 35 IRQ_TYPE_LEVEL_HIGH>;
+		status = "okay";
+	};
+
+	ohci1:ohci@401D0000 {
+		compatible = "nuvoton,nua3500-ohci1";
+		reg = <0x0 0x401D0000 0x0 0x1000>;
+		clocks = <&clk husbh1_gate>;
+		nuvoton,sys = <&sys>;
+		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 
-	ohci1: ohci@401D0000 {
-		compatible = "nuvoton,nua3500-ohci1";
-		reg = <0x0 0x401D0000 0x0 0x1000>;
-		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
+	ohci2:ohci@40170000 {
+		compatible = "nuvoton,nua3500-ohci2";
+		reg = <0x0 0x40170000 0x0 0x1000>;
+		clocks = <&clk usbh_gate>;
+		nuvoton,sys = <&sys>;
+		interrupts = <GIC_SPI 37 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 

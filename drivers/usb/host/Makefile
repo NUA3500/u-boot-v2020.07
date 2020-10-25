@@ -9,7 +9,8 @@ obj-$(CONFIG_SANDBOX) += usb-sandbox.o
 endif
 
 # ohci
-obj-$(CONFIG_USB_OHCI_NEW) += ohci-hcd.o
+obj-$(CONFIG_USB_OHCI_HCD) += ohci-hcd.o
+obj-$(CONFIG_USB_OHCI_NUA3500) += ohci-nua3500.o
 obj-$(CONFIG_USB_ATMEL) += ohci-at91.o
 obj-$(CONFIG_USB_OHCI_DA8XX) += ohci-da8xx.o
 obj-$(CONFIG_USB_R8A66597_HCD) += r8a66597-hcd.o
@@ -21,6 +22,7 @@ obj-$(CONFIG_USB_OHCI_GENERIC) += ohci-generic.o
 
 # echi
 obj-$(CONFIG_USB_EHCI_HCD) += ehci-hcd.o
+obj-$(CONFIG_USB_EHCI_NUA3500) += ehci-nua3500.o
 obj-$(CONFIG_USB_EHCI_ARMADA100) += ehci-armada100.o utmi-armada100.o
 obj-$(CONFIG_USB_EHCI_ATMEL) += ehci-atmel.o
 obj-$(CONFIG_USB_EHCI_FSL) += ehci-fsl.o
