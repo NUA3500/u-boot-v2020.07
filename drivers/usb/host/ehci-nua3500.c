@@ -82,7 +82,6 @@ static int ehci_nua3500_probe(struct udevice *dev)
 	/*                                 0 => USBH Host over-current detect is low-active  */
 	regmap_read(nua3500_ehci->sysreg, REG_SYS_MISCFCR0, &regval);
 	regmap_write(nua3500_ehci->sysreg, REG_SYS_MISCFCR0, (regval & ~(1 << 12)));
-	regmap_write(nua3500_ehci->sysreg, REG_SYS_GPL_MFPH, 0x00990000);
 
 	/*
 	 * Get the base address for EHCI controller from the device node

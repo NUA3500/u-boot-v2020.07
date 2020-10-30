@@ -444,11 +444,20 @@
 		status = "disabled";
 	};
 
+	crypto: crypto@40300000 {
+		compatible = "nuvoton,nua3500-crypto";
+		reg = <0x0 0x40300000 0x0 0x1000>;
+		nuvoton,sys = <&sys>;
+		status = "okay";
+	};
+
 	ehci0: ehci@40140000 {
 		compatible = "nuvoton,nua3500-ehci0";
 		reg = <0x0 0x40140000 0x0 0x1000>;
 		clocks = <&clk husbh0_gate>;
 		nuvoton,sys = <&sys>;
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_ehci0>;
 		interrupts = <GIC_SPI 33 IRQ_TYPE_LEVEL_HIGH>;
 		status = "okay";
 	};

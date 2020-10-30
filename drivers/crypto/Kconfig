@@ -1,5 +1,12 @@
 menu "Hardware crypto devices"
 
+config NUA3500_CRYPTO
+	bool "Nuvoton NUA3500 cryptographic accelerator."
+	depends on NUA3500
+	default y
+	help
+	  Enables support for the on-chip cryptographic accelerator on NUA3500.
+
 source drivers/crypto/fsl/Kconfig
 
 endmenu
