@@ -88,7 +88,6 @@ static void nand_init_chip(int i)
 
 	nand->IO_ADDR_R = nand->IO_ADDR_W = (void  __iomem *)base_addr;
 
-	/* TODO : CWWeng 2020.8.7 temp mark it, since NAND driver is not ready yet
 	if (board_nand_init(nand))
 		return;
 
@@ -96,7 +95,6 @@ static void nand_init_chip(int i)
 		return;
 
 	nand_register(i, mtd);
-	*/
 }
 #endif
 
