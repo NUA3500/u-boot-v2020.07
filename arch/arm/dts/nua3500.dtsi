@@ -326,7 +326,7 @@
 		};
 
 		pcfg_default: pcfg-default {
-			//u-boot,dm-pre-reloc;
+			u-boot,dm-pre-reloc;
 			slew-rate = <0>;
 			input-schmitt-disable;
 			bias-disable;
@@ -432,6 +432,18 @@
 				<SYS_GPL_MFPH_PL13MFP_HSUSBH_OVC    &pcfg_default>;
 			};
 		};
+
+		qspi0 {
+			pinctrl_qspi0: qspi0grp{
+				nuvoton,pins =
+				<SYS_GPD_MFPL_PD0MFP_QSPI0_SS0		&pcfg_default>,
+				<SYS_GPD_MFPL_PD1MFP_QSPI0_CLK		&pcfg_default>,
+				<SYS_GPD_MFPL_PD2MFP_QSPI0_MOSI0	&pcfg_default>,
+				<SYS_GPD_MFPL_PD3MFP_QSPI0_MISO0	&pcfg_default>,
+				<SYS_GPD_MFPL_PD4MFP_QSPI0_MOSI1	&pcfg_default>,
+				<SYS_GPD_MFPL_PD5MFP_QSPI0_MISO1	&pcfg_default>;
+			};
+		};
 	};
 
 	uart0: serial@40700000 {
@@ -519,40 +531,38 @@
 	qspi0: qspi@40680000 {
 		compatible = "nuvoton,nua3500-qspi";
 		reg = <0x0 0x40680000 0x0 0x10000>;
-		interrupts = <GIC_SPI 89 IRQ_TYPE_LEVEL_HIGH>;
-		/*interrupt-names = "qspi0irq";*/
-		num_cs = <2>;
-		lsb = <0>;
-		txneg = <1>;
-		clkpol = <0>;
-		rxneg = <0>;
-		divider = <3>;
-		sleep = <0>;
-		txbitlen = <8>;
-		bus_num = <0>;
+		reg-names = "qspi_base";
+		pinctrl-names = "default";
+		pinctrl-0 = <&pinctrl_qspi0>;
+		nuvoton,clk = <&clk>;
+		clocks = <&clk qspi0_gate>;
+		clock-names = "qspi0";
+
+		u-boot,dm-pre-reloc;
 		status = "okay";
 
 		#address-cells = <1>;
 		#size-cells = <0>;
-		flash@0 {
-			compatible = "winbond,w25q128";
-			spi-max-frequency = <30000000>;
-			reg = <0 0x0 0x2000000>;
+
+		flash0: mx66l51235l@0 {
 			#address-cells = <1>;
 			#size-cells = <1>;
+			compatible = "jedec,spi-nor";
+			spi-max-frequency = <30000000>;
+			m25p,fast-read;
+			spi-tx-bus-width = <1>;
+			spi-rx-bus-width = <4>;
+			reg = <0>;
+		};
 
-			partition@0 {
-				label = "U-Boot";
-				reg = <0x0 0x40000>;
-			};
-			partition@40000 {
-				label = "Linux";
-				reg = <0x40000 0x40000>;
-			};
-			partition@80000 {
-				label = "Rootfs";
-				reg = <0x80000 0x40000>;
-			};
+		spi-nand@1 {
+			#address-cells = <1>;
+			#size-cells = <1>;
+			compatible = "spi-nand";
+			spi-max-frequency = <30000000>;
+			spi-tx-bus-width = <1>;
+			spi-rx-bus-width = <4>;
+			reg = <1>;
 		};
 	};
 

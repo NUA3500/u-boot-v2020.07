@@ -431,45 +431,6 @@ config MXC_SPI
 
 config NUA3500_SPI
         bool "NUA3500 SPI driver"
-choice
-        prompt "Select Using QSPI0/SPI0/SPI1"
-        default USE_NUA3500_QSPI0
-        depends on NUA3500_SPI
-        help
-          This option select using QSPI0/SPI0/SPI1.
-
-config USE_NUA3500_QSPI0
-        bool "Using QSPI0"
-
-config USE_NUA3500_QSPI1
-        bool "Using QSPI1"
-
-config USE_NUA3500_SPI0
-        bool "Using SPI0"
-
-config USE_NUA3500_SPI1
-        bool "Using SPI1"
-
-config USE_NUA3500_SPI2
-        bool "Using SPI2"
-
-config USE_NUA3500_SPI3
-        bool "Using SPI3"
-endchoice
-
-choice
-        prompt "Select NUA3500 QSPI0 in Quad mode or Normal mode"
-        default NUA3500_SPI_Quad
-        depends on NUA3500_SPI && USE_NUA3500_QSPI0
-        help
-          This option sets QSPI0 in Quad mode or Normal mode.
-
-config NUA3500_SPI_Quad
-        bool "Quad mode"
-
-config NUA3500_SPI_Normal
-        bool "Normal mode"
-endchoice
 
 config OMAP3_SPI
 	bool "McSPI driver for OMAP"

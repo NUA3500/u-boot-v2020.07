@@ -12,7 +12,7 @@
 	compatible = "nuvoton,nua3500";
 
 	aliases {
-
+		spi0 = &qspi0;
 	};
 
 	memory {
