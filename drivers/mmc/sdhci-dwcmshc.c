@@ -11,8 +11,9 @@
 #include <malloc.h>
 #include <mmc.h>
 #include <sdhci.h>
+#include <clk.h>
 
-#define SDHCI_DWCMSHC_FMAX 100000000
+#define SDHCI_DWCMSHC_FMAX 180000000
 #define SDHCI_DWCMSHC_FMIN 400000
 
 struct sdhci_dwcmshc_plat {
@@ -33,20 +34,13 @@ static int sdhci_dwcmshc_probe(struct udevice *dev)
 	struct mmc_uclass_priv *upriv = dev_get_uclass_priv(dev);
 	struct sdhci_dwcmshc_plat *plat = dev_get_platdata(dev);
 	struct sdhci_host *host = dev_get_priv(dev);
+	struct clk gate_clk;
 	fdt_addr_t base;
 	int ret;
 
-#if 1	
-	u64 sys_base;
-	sys_base = 0x40460000;
-	__raw_writel(__raw_readl(sys_base+0x204)|(1<<16),sys_base+0x204); //Enable SDH0
-	__raw_writel(__raw_readl(sys_base+0x218)|(3<<16),sys_base+0x218); //Set SDH0 Clock to System PLL
-	#if 0
-	/* SDH0 multi-function */
-	__raw_writel(0x66666666,sys_base+0x90);
-	__raw_writel(0x00006666,sys_base+0x94);
-	#endif
-#endif
+	ret = clk_get_by_name(dev, "core", &gate_clk);
+	if (!ret)
+		clk_enable(&gate_clk);
 
 	base = devfdt_get_addr(dev);
 	if (base == FDT_ADDR_T_NONE)

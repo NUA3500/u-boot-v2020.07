@@ -36,6 +36,8 @@ ENV related settings
 CONFIG_EXTRA_ENV_SETTINGS
 */
 
+#define CONFIG_SYS_MMC_ENV_DEV 0
+
 /*
  * NAND flash configuration
  */

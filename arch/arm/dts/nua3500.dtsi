@@ -543,7 +543,7 @@
 
 		#address-cells = <1>;
 		#size-cells = <0>;
-
+		#if 0
 		flash0: mx66l51235l@0 {
 			#address-cells = <1>;
 			#size-cells = <1>;
@@ -554,15 +554,15 @@
 			spi-rx-bus-width = <4>;
 			reg = <0>;
 		};
-
-		spi-nand@1 {
+		#endif
+		spi-nand@0 {
 			#address-cells = <1>;
 			#size-cells = <1>;
 			compatible = "spi-nand";
 			spi-max-frequency = <30000000>;
 			spi-tx-bus-width = <1>;
 			spi-rx-bus-width = <4>;
-			reg = <1>;
+			reg = <0>;
 		};
 	};
 
@@ -587,13 +587,14 @@
 	sdhci0: sdhci@40180000 {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_sdhci0>;
-		//u-boot,dm-pre-reloc;
+		u-boot,dm-pre-reloc;
 		compatible = "snps,dwcmshc-sdhci";
 		reg = <0x0 0x40180000 0x0 0x2000>;
 		interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
-		/* clocks = <&emmcclk>; */
+		clocks = <&clk sdh0_gate>;
+		clock-names = "core";
 		bus-width = <4>;
-		max-frequency = <200000000>;
+		max-frequency = <180000000>;
 		sdhci,auto-cmd12;
 		no-1-8-v;
 		status = "okay";
@@ -602,13 +603,14 @@
 	sdhci1: sdhci@40190000 {
 		pinctrl-names = "default";
 		pinctrl-0 = <&pinctrl_sdhci1>;
-		//u-boot,dm-pre-reloc;
+		u-boot,dm-pre-reloc;
 		compatible = "snps,dwcmshc-sdhci";
-		reg = <0x0 0x40180000 0x0 0x2000>;
-		interrupts = <GIC_SPI 30 IRQ_TYPE_LEVEL_HIGH>;
-		/* clocks = <&emmcclk>; */
-		bus-width = <4>;
-		max-frequency = <200000000>;
+		reg = <0x0 0x40190000 0x0 0x2000>;
+		interrupts = <GIC_SPI 31 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk sdh1_gate>;
+		clock-names = "core";
+		bus-width = <8>;
+		max-frequency = <180000000>;
 		sdhci,auto-cmd12;
 		no-1-8-v;
 		status = "okay";

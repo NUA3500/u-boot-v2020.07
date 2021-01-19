@@ -107,7 +107,7 @@ static int nua3500_serial_setbrg(struct udevice *dev, int baudrate)
 
 	// Set for emulation
 	regs->LCR |=0x07;
-	regs->BAUD = 0x3000000E;
+	regs->BAUD = 0x300000CE;
 	regs->FCR |=0x02;
 
 	return 0;

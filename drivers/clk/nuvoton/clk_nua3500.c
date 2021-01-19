@@ -834,6 +834,16 @@ static int nua3500_clk_enable(struct clk *clk)
 		sel_val = (regVal & ~(BITMASK_1 << __clk_id_gate_sets[clk->id].bitIdx)) |
 		          (BITMASK_1 << __clk_id_gate_sets[clk->id].bitIdx);
 		writel(sel_val, pc->base+__clk_id_gate_sets[clk->id].offst);
+
+		if(clk->id == 12){ /* Set sdh0 mux to syspll */
+			regVal=readl(pc->base+0x18);
+			regVal|=(0x3<<16);
+			writel(regVal,pc->base+0x18);
+		}else if(clk->id == 13){ /* Set sdh1 mux to syspll */
+			regVal=readl(pc->base+0x18);
+			regVal|=(0x3<<18);
+			writel(regVal,pc->base+0x18);
+		}
 	}
 
 	return ret;
