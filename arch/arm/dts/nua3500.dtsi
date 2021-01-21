@@ -480,7 +480,7 @@
 		clocks = <&clk husbh1_gate>;
 		nuvoton,sys = <&sys>;
 		interrupts = <GIC_SPI 34 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
+		status = "okay";
 	};
 
 	ohci0:ohci@40150000 {
@@ -498,7 +498,7 @@
 		clocks = <&clk husbh1_gate>;
 		nuvoton,sys = <&sys>;
 		interrupts = <GIC_SPI 36 IRQ_TYPE_LEVEL_HIGH>;
-		status = "disabled";
+		status = "okay";
 	};
 
 	ohci2:ohci@40170000 {
