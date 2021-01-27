@@ -219,7 +219,6 @@
 			interrupts = <GIC_SPI  73 IRQ_TYPE_LEVEL_HIGH>;
 			clocks = <&clk gpe_gate>;
 			#gpio-cells = <2>;
-			gpio-ranges = <&pinctrl 0 64 16>;
 			gpio-controller;
 			interrupt-controller;
 			#interrupt-cells = <2>;
@@ -326,10 +325,11 @@
 		};
 
 		pcfg_default: pcfg-default {
-			u-boot,dm-pre-reloc;
-			slew-rate = <0>;
-			input-schmitt-disable;
-			bias-disable;
+			slew-rate = <1>; /* 0:normal, 1:high */
+			input-schmitt-disable;  /* input-schmitt-disable, input-schmitt-enable */
+			bias-disable; /* bias-disable, bias-pull-up, bias-pull-down  */
+			power-source = <3300>; /* 1800:1.8v , 3300:3.3v */
+			drive-strength = <3>; /* 0 ~ 7 */
 		};
 
 		nfi {

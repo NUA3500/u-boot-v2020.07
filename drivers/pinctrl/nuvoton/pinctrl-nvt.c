@@ -30,6 +30,7 @@
 #define GPIO_INTSRC 0x20
 #define GPIO_SMTEN 0x24
 #define GPIO_SLEWCTL 0x28
+#define GPIO_SPW 0x2C
 #define GPIO_PUSEL 0x30
 #define GPIO_DS 0x38
 #define GPIO_UDS 0x3C
@@ -96,8 +97,8 @@ static int nvt_set_drive_perpin(struct nvt_pinctrl_priv *priv,
 	nvt_gpio_cla_port(pin_id, &group_num, &port_num);
 	base = ctrl->pin_banks[group_num].reg_base;
 	value = __raw_readl(base + GPIO_DS);
-	value &= ~GPIO_SET_MODE(port_num, 0x3);
-	value |= GPIO_SET_MODE(port_num, strength & 0x3);
+	value = (value & ~(1<<port_num)) | ((strength&0x1)<<port_num);
+	value = (value & ~(1<<(port_num+16))) | (((strength>>1)&0x1)<<(port_num+16));
 	__raw_writel(value, base + GPIO_DS);
 
 	u_value = __raw_readl(base + GPIO_UDS);
@@ -134,7 +135,6 @@ static int nvt_set_pull(struct nvt_pinctrl_priv *priv,
 		break;
 	}
 	__raw_writel(value, base + GPIO_PUSEL);
-
 	return 0;
 }
 
@@ -150,11 +150,49 @@ static int nvt_set_schmitt(struct nvt_pinctrl_priv *priv,
 	nvt_gpio_cla_port(pin_id, &group_num, &port_num);
 	base = ctrl->pin_banks[group_num].reg_base;
 	value = __raw_readl(base + GPIO_SMTEN);
-	value &= ~GPIO_SET_MODE(port_num, 0x3);
-	value |= GPIO_SET_MODE(port_num, enable & 0x1);
+	value &= (1<<port_num);
+	value |= ((enable&0x1)<<port_num);
 	__raw_writel(value, base + GPIO_SMTEN);
 	return 0;
 }
+
+static int nvt_set_pwr_src(struct nvt_pinctrl_priv *priv,
+                           unsigned int pin_id, int src)
+{
+        int port_num, group_num;
+        unsigned long value;
+        void __iomem *base;
+        struct nvt_pin_ctrl *ctrl = priv->ctrl;
+	int v=0;
+
+	if(src==1800) v=1;
+        nvt_gpio_cla_port(pin_id, &group_num, &port_num);
+        base = ctrl->pin_banks[group_num].reg_base;
+        value = __raw_readl(base + GPIO_SPW);
+        value &= ~(1<<port_num);
+        value |= (v<<port_num);
+        __raw_writel(value, base + GPIO_SPW);
+	return 0;
+}
+
+static int nvt_set_slew_rate(struct nvt_pinctrl_priv *priv,
+                           unsigned int pin_id, int rate)
+{
+	int port_num, group_num;
+	unsigned long value;
+	void __iomem *base;
+	struct nvt_pin_ctrl *ctrl = priv->ctrl;
+
+	nvt_gpio_cla_port(pin_id, &group_num, &port_num);
+	base = ctrl->pin_banks[group_num].reg_base;
+	value = __raw_readl(base + GPIO_SLEWCTL);
+	value &= ~GPIO_SET_MODE(port_num, 0x3);
+	value |= GPIO_SET_MODE(port_num, rate & 0x1);
+	__raw_writel(value, base + GPIO_SLEWCTL);
+	return 0;
+
+}
+
 
 /* set the pin config settings for a specified pin */
 static int nvt_pinconf_set(struct nvt_pinctrl_priv *priv,
@@ -185,6 +223,17 @@ static int nvt_pinconf_set(struct nvt_pinctrl_priv *priv,
 			return rc;
 		break;
 
+	case PIN_CONFIG_POWER_SOURCE:
+		rc = nvt_set_pwr_src(priv, pin, arg);
+		if (rc < 0)
+			return rc;
+		break;
+
+	case PIN_CONFIG_SLEW_RATE:
+		rc = nvt_set_slew_rate(priv, pin, arg);
+		if (rc < 0)
+			return rc;
+		break;
 	default:
 		break;
 	}
@@ -201,6 +250,8 @@ static const struct pinconf_param nvt_conf_params[] = {
 	{"drive-strength", PIN_CONFIG_DRIVE_STRENGTH, 0},
 	{"input-schmitt-disable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 0},
 	{"input-schmitt-enable", PIN_CONFIG_INPUT_SCHMITT_ENABLE, 1},
+	{"power-source", PIN_CONFIG_POWER_SOURCE, 0 },
+	{"slew-rate", PIN_CONFIG_SLEW_RATE, 0},
 };
 
 static int nvt_pinconf_prop_name_to_param(const char *property,
@@ -290,19 +341,17 @@ static int nvt_pinctrl_set_state(struct udevice *dev,
 		fdt_for_each_property_offset(property_offset, blob, pcfg_node) {
 			value = fdt_getprop_by_offset(blob, property_offset,
 						      &prop_name, &prop_len);
-			if (!value)
-				return -ENOENT;
+
 #endif
 			param = nvt_pinconf_prop_name_to_param(prop_name,
 							       &default_val);
-			if (param < 0)
-				break;
 
+			if (param < 0)
+				continue;
 			if (prop_len >= sizeof(fdt32_t))
 				arg = fdt32_to_cpu(*(fdt32_t *) value);
 			else
 				arg = default_val;
-
 			ret = nvt_pinconf_set(priv, pins, param, arg);
 			if (ret) {
 				debug("%s: nvt_pinconf_set fail: %d\n",
@@ -327,15 +376,7 @@ static int nvt_pinctrl_get_soc_data(struct udevice *dev)
 	int i;
 	ofnode node;
 	struct nvt_pin_bank *bank;
-#endif
 
-	ctrl = malloc(sizeof(*ctrl));
-	if (!ctrl) {
-		dev_err(dev, "Not enough memory\n");
-		return -ENOMEM;
-	}
-
-#ifdef CONFIG_NUA3500_GPIO
 	ctrl->nr_banks = GPIO_PORT_NUM;
 	ctrl->pin_banks = malloc(ctrl->nr_banks * sizeof(*ctrl->pin_banks));
 	if (!ctrl->pin_banks) {

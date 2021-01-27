@@ -114,13 +114,27 @@ static const struct dm_gpio_ops nua3500_gpio_ops = {
 
 static int nua3500_gpio_probe(struct udevice *dev)
 {
+	int ret;
 	char *str, name[32];
+	struct clk clk;
 	struct gpio_dev_priv *uc_priv = dev_get_uclass_priv(dev);
 	struct nua3500_gpio_priv *priv = dev_get_priv(dev);
 
 	priv->bank = dev_get_driver_data(dev);
-	__raw_writel(__raw_readl(0x40460000 + 0x204) | (priv->bank << 16),
-		0x40460000 + 0x208);	//Enable GPIO
+
+        ret = clk_get_by_index(dev, 0, &clk);
+        if (ret < 0) {
+                dev_err(dev, "Failed to get GPIO bank clock\n");
+                return ret;
+        }
+
+        ret = clk_enable(&clk);
+        clk_free(&clk);
+        if (ret) {
+                dev_err(dev, "Failed to enable GPIO bank clock\n");
+                return ret;
+        }
+
 	uc_priv->gpio_count = 16;
 	uc_priv->gpio_base = priv->bank * uc_priv->gpio_count;
 
