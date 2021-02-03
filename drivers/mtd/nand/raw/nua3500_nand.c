@@ -870,7 +870,7 @@ static int nua3500_nand_probe(struct udevice *dev)
 	}
 
 	/* get nand info */
-	ret = dev_read_resource_byname(dev, "nfi", &res);
+	ret = dev_read_resource_byname(dev, "nand", &res);
 	if (ret)
 		return ret;
 
@@ -880,7 +880,7 @@ static int nua3500_nand_probe(struct udevice *dev)
 }
 
 static const struct udevice_id nua3500_nand_ids[] = {
-	{ .compatible = "nuvoton,nua3500-nfi" },
+	{ .compatible = "nuvoton,nua3500-nand" },
 	{ }
 };
 

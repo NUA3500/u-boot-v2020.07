@@ -332,8 +332,8 @@
 			drive-strength = <3>; /* 0 ~ 7 */
 		};
 
-		nfi {
-			pinctrl_nfi0: nfi0grp{
+		nand {
+			pinctrl_nand: nandgrp{
 				nuvoton,pins =
 					<SYS_GPA_MFPL_PA0MFP_NAND_DATA0 &pcfg_default>,
 					<SYS_GPA_MFPL_PA1MFP_NAND_DATA1 &pcfg_default>,
@@ -566,18 +566,18 @@
 		};
 	};
 
-	nfi: nfi@401A0000 {
+	nand: nand@401A0000 {
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_nfi0>;
-		compatible = "nuvoton,nua3500-nfi";
+		pinctrl-0 = <&pinctrl_nand>;
+		u-boot,dm-pre-reloc;
+		compatible = "nuvoton,nua3500-nand";
 		reg = <0x0 0x401A0000 0x0 0x1000>;
-		reg-names = "nfi";
+		reg-names = "nand";
 		interrupts = <GIC_SPI 38 IRQ_TYPE_LEVEL_HIGH>;	/* 70-32 */
 		nuvoton,sys = <&sys>;
 		clocks = <&clk nand_gate>;
 		status = "okay";
 		nand-ecc-mode = "hw_oob_first";
-		nand-ecc-algo = "bch";
 		nand-bus-width = <8>;
 		nand-ecc-strength = <8>;
 		nand-ecc-step-size = <512>;
