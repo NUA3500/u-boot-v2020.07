@@ -88,12 +88,10 @@ static int gmac_nua3500_probe(struct udevice *dev)
 		    pdata->id == 0 ? REG_SYS_GMAC0MISCR : REG_SYS_GMAC1MISCR,
 		    &reg);
 
-	if (eth_pdata->phy_interface == PHY_INTERFACE_MODE_RGMII) {
-		printf("rgmii\n");
-		reg &= ~1;
-	} else {	// RMII
-		printf("rmii\n");
+	if (eth_pdata->phy_interface == PHY_INTERFACE_MODE_RMII) {
 		reg |= 1;
+	} else {
+		reg &= ~1;
 	}
 	reg &= ~(TXDLY_MSK | RXDLY_MSK);
 	reg |= (pdata->tx_delay << TXDLY_OFST) | (pdata->rx_delay << RXDLY_OFST);
@@ -101,7 +99,6 @@ static int gmac_nua3500_probe(struct udevice *dev)
 		     pdata->id == 0 ? REG_SYS_GMAC0MISCR : REG_SYS_GMAC1MISCR,
 		     reg);
 
-#if 0
 	ret = clk_set_defaults(dev, 0);
 	if (ret)
 		dev_err(dev, "clk_set_defaults failed %d\n", ret);
@@ -109,19 +106,26 @@ static int gmac_nua3500_probe(struct udevice *dev)
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
 		return ret;
-#endif
 
 	switch (eth_pdata->phy_interface) {
 	case PHY_INTERFACE_MODE_RGMII:
 		pdata->phy_mode = PHY_INTERFACE_MODE_RGMII;
 		break;
-
+	case PHY_INTERFACE_MODE_RGMII_ID:
+		pdata->phy_mode = PHY_INTERFACE_MODE_RGMII_ID;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_TXID:
+		pdata->phy_mode = PHY_INTERFACE_MODE_RGMII_TXID;
+		break;
+	case PHY_INTERFACE_MODE_RGMII_RXID:
+		pdata->phy_mode = PHY_INTERFACE_MODE_RGMII_RXID;
+		break;
 	case PHY_INTERFACE_MODE_RMII:
 		pdata->phy_mode = PHY_INTERFACE_MODE_RMII;
 		break;
 
 	default:
-		dev_err(dev, "no interface defined!\n");
+		dev_err(dev, "No interface defined!\n");
 		return -ENXIO;
 	}
 
