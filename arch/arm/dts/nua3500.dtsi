@@ -540,8 +540,9 @@
 
 	rtc: rtc@40410000 {
 		compatible = "nuvoton,nua3500-rtc";
+		clocks = <&clk rtc_gate>;
 		reg = <0x0 0x40410000 0x0 0x10000>;
-		interrupts = <GIC_SPI 5 IRQ_TYPE_EDGE_RISING>;
+		//interrupts = <GIC_SPI 5 IRQ_TYPE_EDGE_RISING>;
 		status = "disabled";
 	};
 

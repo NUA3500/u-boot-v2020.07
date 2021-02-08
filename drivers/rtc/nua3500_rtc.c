@@ -131,7 +131,7 @@ static int nua3500_rtc_probe(struct udevice *dev)
 {
 	struct nua3500_rtc_priv *priv = dev_get_priv(dev);
 	uint32_t val;
-	//struct clk clk;
+	struct clk clk;
 	int ret;
 
 	priv->base = dev_read_addr(dev);
@@ -140,7 +140,6 @@ static int nua3500_rtc_probe(struct udevice *dev)
 
 	val = readl(priv->base + REG_RTC_INIR);
 
-	#if 0
 	ret = clk_get_by_index(dev, 0, &clk);
 	if (ret)
 		return ret;
@@ -150,7 +149,6 @@ static int nua3500_rtc_probe(struct udevice *dev)
 		clk_free(&clk);
 		return ret;
 	}
-	#endif
 
 	/* init RTC */
 	writel(REG_RTC_INIR_NUMBER, priv->base + REG_RTC_INIR);

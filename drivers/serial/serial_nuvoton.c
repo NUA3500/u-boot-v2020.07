@@ -103,11 +103,14 @@ static int nua3500_serial_getc(struct udevice *dev)
 static int nua3500_serial_setbrg(struct udevice *dev, int baudrate)
 {
 	struct nua3500_serial_priv *priv = dev_get_priv(dev);
+	struct nua3500_serial_platdata *plat = dev_get_platdata(dev);
 	struct nua3500_serial_regs *regs = priv->regs;
+	unsigned int div;
 
-	// Set for emulation
+	div = (plat->clock / CONFIG_BAUDRATE) - 2;
+
 	regs->LCR |=0x07;
-	regs->BAUD = 0x300000CE;
+	regs->BAUD = 0x30000000 | div;
 	regs->FCR |=0x02;
 
 	return 0;
@@ -133,6 +136,8 @@ static int nua3500_serial_probe(struct udevice *dev)
 
 	plat->base = addr;
 	priv->regs = (struct nua3500_serial_regs *)plat->base;
+
+	plat->clock = 24000000;
 
 	//enable clock
 	__raw_writel(__raw_readl(0X4046020C) | (0x1 << 12), 0X4046020C);
