@@ -21,9 +21,6 @@
 #include <linux/mtd/rawnand.h>
 
 #include <dt-bindings/clock/nua3500-clk.h>
-#include <syscon.h>
-#include <regmap.h>
-#include <nua3500-sys.h>
 
 /* SYS Registers */
 #define REG_SYS_PWRONOTP        (0x004)    /* Power-on Setting OTP Source Register (TZNS) */
@@ -84,7 +81,7 @@
 
 /*******************************************/
 #define NAND_EN     0x08
-#define READYBUSY   (0x01 << 18)
+#define READYBUSY   (0x01 << 10)
 #define ENDADDR     (0x01 << 31)
 
 /*-----------------------------------------------------------------------------
@@ -109,7 +106,6 @@ struct nua3500_nand_info {
 	struct udevice		*dev;
 	struct mtd_info         mtd;
 	struct nand_chip        chip;
-	struct regmap		*sysreg;
 	void __iomem 		*reg;
 	int                     eBCHAlgo;
 	int                     m_i32SMRASize;
@@ -185,6 +181,8 @@ static void nua3500_nand_command(struct mtd_info *mtd, unsigned int command, int
 	struct nand_chip *chip = mtd_to_nand(mtd);
 	struct nua3500_nand_info *nand_info = nand_get_controller_data(chip);
 
+	writel(0x400, nand_info->reg+REG_SMISR);
+
 	if (command == NAND_CMD_READOOB) {
 		column += mtd->writesize;
 		command = NAND_CMD_READ0;
@@ -193,7 +191,11 @@ static void nua3500_nand_command(struct mtd_info *mtd, unsigned int command, int
 	writel(command & 0xff, nand_info->reg+REG_SMCMD);
 
 	if (command == NAND_CMD_READID) {
-		writel(ENDADDR, nand_info->reg+REG_SMADDR);
+		writel(ENDADDR|column, nand_info->reg+REG_SMADDR);
+		return;
+	} else if (command == NAND_CMD_PARAM) {
+		writel(ENDADDR|column, nand_info->reg+REG_SMADDR);
+
 	} else {
 
 		if (column != -1 || page_addr != -1) {
@@ -300,7 +302,7 @@ static void nua3500_nand_read_buf(struct mtd_info *mtd, unsigned char *buf, int 
 {
 	struct nand_chip *nand = mtd_to_nand(mtd);
 	struct nua3500_nand_info *nand_info = nand_get_controller_data(nand);
-	int i;
+	int volatile i;
 
 	for (i = 0; i < len; i++)
 		buf[i] = (unsigned char)readl(nand_info->reg+REG_SMDATA);
@@ -675,7 +677,6 @@ static int nua3500_nand_read_oob_hwecc(struct mtd_info *mtd, struct nand_chip *c
 	struct nua3500_nand_info *nand_info = nand_get_controller_data(nand);
 	char * ptr=(char *)(nand_info->reg+REG_SMRA0);
 
-	//debug("nua3500_nand_read_oob_hwecc, page %d, %d\n", page, sndcmd);
 	/* At first, read the OOB area  */
 	nua3500_nand_command(mtd, NAND_CMD_READOOB, 0, page);
 
@@ -698,6 +699,7 @@ int nua3500_nand_init(struct nua3500_nand_info *nand_info)
 	nand_set_controller_data(nand, nand_info);
 	nand->options |= NAND_NO_SUBPAGE_WRITE;
 
+	nand->flash_node = dev_of_offset(nand_info->dev);
 	/* hwcontrol always must be implemented */
 	nand->cmd_ctrl = nua3500_hwcontrol;
 	nand->cmdfunc = nua3500_nand_command;
@@ -721,7 +723,6 @@ int nua3500_nand_init(struct nua3500_nand_info *nand_info)
 
 	// Enable SM_EN
 	writel(NAND_EN, nand_info->reg+REG_NAND_FMICSR);
-	writel(0x20305, nand_info->reg+REG_SMTCR);
 
 	// Enable SM_CS0
 	writel((readl(nand_info->reg+REG_SMCSR)&(~0x06000000))|0x04000000, nand_info->reg+REG_SMCSR);
@@ -732,91 +733,35 @@ int nua3500_nand_init(struct nua3500_nand_info *nand_info)
 	while (readl(nand_info->reg+REG_SMCSR) & 0x1);
 
 	/* Detect NAND chips */
-	/* first scan to find the device and get the page size */
-	if (nand_scan_ident(mtd, 1, NULL)) { //CWWeng 2017.2.14
-		pr_err("NAND Flash not found !\n");
-	}
+	if (nand_scan(mtd, 1) == 0) {
 
-	//Set PSize bits of SMCSR register to select NAND card page size
-	switch (mtd->writesize) {
-	case 2048:
-		writel( (readl(nand_info->reg+REG_SMCSR)&(~0x30000)) + 0x10000, nand_info->reg+REG_SMCSR);
-		nand_info->eBCHAlgo = 1; /* T8 */
-		nua3500_layout_oob_table ( &nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[0][nand_info->eBCHAlgo] );
-		break;
+		//Set PSize bits of SMCSR register to select NAND card page size
+		reg = readl(nand_info->reg+REG_SMCSR) & (~0x30000);
+		writel(reg | (mtd->writesize << 5), nand_info->reg+REG_SMCSR);
 
-	case 4096:
-		writel( (readl(nand_info->reg+REG_SMCSR)&(~0x30000)) + 0x20000, nand_info->reg+REG_SMCSR);
-		nand_info->eBCHAlgo = 1; /* T8 */
-		nua3500_layout_oob_table ( &nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[1][nand_info->eBCHAlgo] );
-		break;
+		if (nand->ecc.strength == 0) {
+			nand_info->eBCHAlgo = 0; /* No ECC */
+			nua3500_layout_oob_table(&nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
 
-	case 8192:
-		writel( (readl(nand_info->reg+REG_SMCSR)&(~0x30000)) + 0x30000, nand_info->reg+REG_SMCSR);
-		nand_info->eBCHAlgo = 2; /* T12 */
-		nua3500_layout_oob_table ( &nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[2][nand_info->eBCHAlgo] );
-		break;
-	default:
-		pr_err("NUA3500 NAND CONTROLLER IS NOT SUPPORT THE PAGE SIZE. (%d, %d)\n", mtd->writesize, mtd->oobsize );
-	}
+		} else if (nand->ecc.strength <= 8) {
+			nand_info->eBCHAlgo = 1; /* T8 */
+			nua3500_layout_oob_table(&nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
 
-	/* check power on setting */
-	regmap_read(nand_info->sysreg, REG_SYS_PWRONOTP, &reg);
-	/* check power-on-setting from OTP or PIN */
-	if ((reg & 0x1) == 0) {    /* from pin */
-		regmap_read(nand_info->sysreg, REG_SYS_PWRONPIN, &reg);
-		reg = reg << 8;
-	}
+		} else if (nand->ecc.strength <= 12) {
+			nand_info->eBCHAlgo = 2; /* T12 */
+			nua3500_layout_oob_table(&nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
 
-	if ((reg & 0xc000) != 0xc000) { /* ECC */
-		switch (reg & 0xc000) {
-			case 0x0000: // No ECC
-				nand_info->eBCHAlgo = 0;
-				break;
+		} else if (nand->ecc.strength <= 24) {
+			nand_info->eBCHAlgo = 3; /* T24 */
+			nua3500_layout_oob_table(&nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
 
-			case 0x4000: // T12
-				nand_info->eBCHAlgo = 2;
-				break;
-
-			case 0x8000: // T24
-				nand_info->eBCHAlgo = 3;
-				break;
-
-			default:
-				pr_err("WRONG ECC Power-On-Setting (0x%x)\n", reg);
+		} else {
+			pr_warn("NAND Controller is not support this flash. (%d, %d)\n", mtd->writesize, mtd->oobsize);
 		}
-	}
-	if ((reg & 0x3000) != 0x3000) { /* page size */
-		switch (reg & 0x3000) {
-			case 0x0000: // 2KB
-				mtd->writesize = 2048;
-				writel((readl(nand_info->reg+REG_SMCSR)&(~0x30000)) + 0x10000, nand_info->reg+REG_SMCSR);
-				mtd->oobsize = g_i32ParityNum[0][nand_info->eBCHAlgo] + 8;
-				nua3500_layout_oob_table(&nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[0][nand_info->eBCHAlgo]);
-				break;
-
-			case 0x1000: // 4KB
-				mtd->writesize = 4096;
-				writel((readl(nand_info->reg+REG_SMCSR)&(~0x30000)) + 0x20000, nand_info->reg+REG_SMCSR);
-				mtd->oobsize = g_i32ParityNum[1][nand_info->eBCHAlgo] + 8;
-				nua3500_layout_oob_table(&nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[1][nand_info->eBCHAlgo]);
-				break;
-
-			case 0x2000: // 8KB
-				mtd->writesize = 8192;
-				writel((readl(nand_info->reg+REG_SMCSR)&(~0x30000)) + 0x30000, nand_info->reg+REG_SMCSR);
-				mtd->oobsize = g_i32ParityNum[2][nand_info->eBCHAlgo] + 8;
-				nua3500_layout_oob_table(&nua3500_nand_oob, mtd->oobsize, g_i32ParityNum[2][nand_info->eBCHAlgo]);
-				break;
-
-			default:
-				pr_err("WRONG NAND page Power-On-Setting (0x%x)\n", reg);
-		}
-	}
+	} 
 
 	nand_info->m_i32SMRASize  = mtd->oobsize;
 	nand->ecc.bytes = nua3500_nand_oob.eccbytes;
-	nand->ecc.size  = mtd->writesize;
 
 	nand->options = 0;
 
@@ -835,11 +780,6 @@ int nua3500_nand_init(struct nua3500_nand_info *nand_info)
 	// Enable H/W ECC, ECC parity check enable bit during read page
 	writel( readl(nand_info->reg+REG_SMCSR) | 0x00800080, nand_info->reg+REG_SMCSR);
 
-	/* second phase scan */
-	if (nand_scan_tail(mtd)) {
-		pr_err("nand_scan_tail fail\n");
-	}
-
 	nand_register(0, mtd);
 
 	return 0;
@@ -848,26 +788,10 @@ int nua3500_nand_init(struct nua3500_nand_info *nand_info)
 static int nua3500_nand_probe(struct udevice *dev)
 {
 	struct nua3500_nand_info *info = dev_get_priv(dev);
-	struct ofnode_phandle_args args;
 	struct resource res;
 	int ret;
 
 	info->dev = dev;
-
-	/* get system register map */
-	ret = dev_read_phandle_with_args(dev, "nuvoton,sys", NULL,
-					 0, 0, &args);
-	if (ret) {
-		dev_err(dev, "Failed to get syscon: %d\n", ret);
-		return ret;
-	}
-
-	info->sysreg = syscon_node_to_regmap(args.node);
-	if (IS_ERR(info->sysreg)) {
-		ret = PTR_ERR(info->sysreg);
-		dev_err(dev, "can't get syscon: %d\n", ret);
-		return ret;
-	}
 
 	/* get nand info */
 	ret = dev_read_resource_byname(dev, "nand", &res);
