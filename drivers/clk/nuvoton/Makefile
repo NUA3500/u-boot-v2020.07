@@ -3,5 +3,5 @@
 # Copyright (c) 2020 Nuvoton technology corporation
 #
 
-obj-y += clk_nua3500.o
+obj-y += clk_ma35d1.o
 

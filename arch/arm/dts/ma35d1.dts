@@ -1,0 +1,32 @@
+// SPDX-License-Identifier:
+/*
+ * Copyright 2020 - Nuvoton Technology Corporation
+ *
+ */
+
+/dts-v1/;
+#include "ma35d1.dtsi"
+
+/ {
+	model = "Nuvoton MA35D1 EVB board";
+	compatible = "nuvoton,ma35d1";
+
+	aliases {
+		spi0 = &qspi0;
+	};
+
+	memory {
+		device_type = "memory";
+		reg = <0x00000000 0x80000000 0 0x0e000000>;
+	};
+
+};
+
+&uart0 {
+	status = "okay";
+};
+
+
+
+
+

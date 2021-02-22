@@ -16,7 +16,7 @@
  * @dst_addr		Destination address of plain text output
  * @data_len		Number bytes to decrypt
  */
-int nua3500_aes_decrypt(u32 keynum, u32 src_addr,
+int ma35d1_aes_decrypt(u32 keynum, u32 src_addr,
 			u32 dst_addr, u32 data_len);
 
 #endif

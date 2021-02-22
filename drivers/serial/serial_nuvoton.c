@@ -22,9 +22,9 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-static int nua3500_serial_putc(struct udevice *dev, const char ch);
-static int nua3500_serial_getc(struct udevice *dev);
-static int nua3500_serial_setbrg(struct udevice *dev, int baudrate);
+static int ma35d1_serial_putc(struct udevice *dev, const char ch);
+static int ma35d1_serial_getc(struct udevice *dev);
+static int ma35d1_serial_setbrg(struct udevice *dev, int baudrate);
 
 #define TX_RX_FIFO_RESET    0x06
 #define ENABLE_DLAB         0x80    // Enable Divider Latch Access
@@ -36,7 +36,7 @@ static int nua3500_serial_setbrg(struct udevice *dev, int baudrate);
 #define TX_FIFO_EMPTY       0x400000
 #define TX_FIFO_FULL        0x800000
 
-struct nua3500_serial_regs {
+struct ma35d1_serial_regs {
 	volatile u32 RBR_THR;
 	volatile u32 IER;
 	volatile u32 FCR;
@@ -52,19 +52,19 @@ struct nua3500_serial_regs {
 	volatile u32 FUNSEL;
 };
 
-struct nua3500_serial_platdata {
+struct ma35d1_serial_platdata {
 	unsigned long base;
 	unsigned int clock;
 };
 
-struct nua3500_serial_priv {
-	struct nua3500_serial_regs *regs;
+struct ma35d1_serial_priv {
+	struct ma35d1_serial_regs *regs;
 };
 
-static int nua3500_serial_putc(struct udevice *dev, const char ch)
+static int ma35d1_serial_putc(struct udevice *dev, const char ch)
 {
-	struct nua3500_serial_priv *priv = dev_get_priv(dev);
-	struct nua3500_serial_regs *regs = priv->regs;
+	struct ma35d1_serial_priv *priv = dev_get_priv(dev);
+	struct ma35d1_serial_regs *regs = priv->regs;
 
 	if(regs->FSR & TX_FIFO_FULL)
 		return -EAGAIN;
@@ -74,10 +74,10 @@ static int nua3500_serial_putc(struct udevice *dev, const char ch)
 	return 0;
 }
 
-static int nua3500_serial_pending(struct udevice *dev, bool input)
+static int ma35d1_serial_pending(struct udevice *dev, bool input)
 {
-	struct nua3500_serial_priv *priv = dev_get_priv(dev);
-	struct nua3500_serial_regs *regs = priv->regs;
+	struct ma35d1_serial_priv *priv = dev_get_priv(dev);
+	struct ma35d1_serial_regs *regs = priv->regs;
 	unsigned int lsr;
 
 	lsr = regs->FSR;
@@ -89,10 +89,10 @@ static int nua3500_serial_pending(struct udevice *dev, bool input)
 	}
 }
 
-static int nua3500_serial_getc(struct udevice *dev)
+static int ma35d1_serial_getc(struct udevice *dev)
 {
-	struct nua3500_serial_priv *priv = dev_get_priv(dev);
-	struct nua3500_serial_regs *regs = priv->regs;
+	struct ma35d1_serial_priv *priv = dev_get_priv(dev);
+	struct ma35d1_serial_regs *regs = priv->regs;
 
 	if (!(regs->FSR & RX_FIFO_EMPTY))
 		return (regs->RBR_THR);
@@ -100,11 +100,11 @@ static int nua3500_serial_getc(struct udevice *dev)
 		return -EAGAIN;
 }
 
-static int nua3500_serial_setbrg(struct udevice *dev, int baudrate)
+static int ma35d1_serial_setbrg(struct udevice *dev, int baudrate)
 {
-	struct nua3500_serial_priv *priv = dev_get_priv(dev);
-	struct nua3500_serial_platdata *plat = dev_get_platdata(dev);
-	struct nua3500_serial_regs *regs = priv->regs;
+	struct ma35d1_serial_priv *priv = dev_get_priv(dev);
+	struct ma35d1_serial_platdata *plat = dev_get_platdata(dev);
+	struct ma35d1_serial_regs *regs = priv->regs;
 	unsigned int div;
 
 	div = (plat->clock / CONFIG_BAUDRATE) - 2;
@@ -116,17 +116,17 @@ static int nua3500_serial_setbrg(struct udevice *dev, int baudrate)
 	return 0;
 }
 
-static const struct dm_serial_ops nua3500_serial_ops = {
-	.putc = nua3500_serial_putc,
-	.pending = nua3500_serial_pending,
-	.getc = nua3500_serial_getc,
-	.setbrg = nua3500_serial_setbrg,
+static const struct dm_serial_ops ma35d1_serial_ops = {
+	.putc = ma35d1_serial_putc,
+	.pending = ma35d1_serial_pending,
+	.getc = ma35d1_serial_getc,
+	.setbrg = ma35d1_serial_setbrg,
 };
 
-static int nua3500_serial_probe(struct udevice *dev)
+static int ma35d1_serial_probe(struct udevice *dev)
 {
-	struct nua3500_serial_platdata *plat = dev_get_platdata(dev);
-	struct nua3500_serial_priv *priv = dev_get_priv(dev);
+	struct ma35d1_serial_platdata *plat = dev_get_platdata(dev);
+	struct ma35d1_serial_priv *priv = dev_get_priv(dev);
 	fdt_addr_t addr;
 
 	addr = devfdt_get_addr(dev);
@@ -135,7 +135,7 @@ static int nua3500_serial_probe(struct udevice *dev)
 		return -EINVAL;
 
 	plat->base = addr;
-	priv->regs = (struct nua3500_serial_regs *)plat->base;
+	priv->regs = (struct ma35d1_serial_regs *)plat->base;
 
 	plat->clock = 24000000;
 
@@ -146,19 +146,19 @@ static int nua3500_serial_probe(struct udevice *dev)
 	return 0;
 }
 
-static const struct udevice_id nua3500_serial_id[] = {
-	{.compatible = "nuvoton,nua3500-uart"},
+static const struct udevice_id ma35d1_serial_id[] = {
+	{.compatible = "nuvoton,ma35d1-uart"},
 	{}
 };
 
-U_BOOT_DRIVER(serial_nua3500) = {
-	.name = "serial_nua3500",
+U_BOOT_DRIVER(serial_ma35d1) = {
+	.name = "serial_ma35d1",
 	.id = UCLASS_SERIAL,
-	.of_match = nua3500_serial_id,
-	.platdata_auto_alloc_size = sizeof(struct nua3500_serial_platdata),
-	.probe = nua3500_serial_probe,
-	.ops = &nua3500_serial_ops,
-	.priv_auto_alloc_size = sizeof(struct nua3500_serial_priv),
+	.of_match = ma35d1_serial_id,
+	.platdata_auto_alloc_size = sizeof(struct ma35d1_serial_platdata),
+	.probe = ma35d1_serial_probe,
+	.ops = &ma35d1_serial_ops,
+	.priv_auto_alloc_size = sizeof(struct ma35d1_serial_priv),
 	.flags = DM_FLAG_PRE_RELOC,
 };
 

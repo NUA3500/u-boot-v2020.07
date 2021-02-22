@@ -36,7 +36,7 @@ static int nu_aes_decrypt(struct cmd_tbl *cmdtp, int flag, int argc, char *const
 	dst_addr = simple_strtoul(argv[3], NULL, 16);
 	len = simple_strtoul(argv[4], NULL, 16);
 
-	return nua3500_aes_decrypt(keynum, src_addr, dst_addr, len);
+	return nma35d1_aes_decrypt(keynum, src_addr, dst_addr, len);
 }
 
 /***************************************************/

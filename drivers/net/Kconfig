@@ -670,13 +670,13 @@ config FSL_LS_MDIO
 	  This driver supports the MDIO bus found on the Fman 10G Ethernet MACs and
 	  on the mEMAC (which supports both Clauses 22 and 45).
 
-config GMAC_NUA3500
-	bool "Nuvoton NUA3500 GMAC"
+config GMAC_MA35D1
+	bool "Nuvoton MA35D1 GMAC"
 	depends on DM_ETH && ETH_DESIGNWARE
 	select SYSCON
 	select REGMAP
 	help
-	  This driver provides Nuvoton NUA3500 network support based on the
+	  This driver provides Nuvoton MA35D1 network support based on the
 	  Synopsys Designware driver.
 
 endif # NETDEVICES

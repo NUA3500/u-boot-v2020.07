@@ -1,2 +1,2 @@
-obj-$(CONFIG_NUA3500_CRYPTO) += nu_aes.o
+obj-$(CONFIG_MA35D1_CRYPTO) += nu_aes.o
 

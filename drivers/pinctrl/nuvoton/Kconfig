@@ -1,12 +1,12 @@
-config PINCTRL_NUA3500
-	bool "NUVOTON NUA3500 pin control drivers"
+config PINCTRL_MA35D1
+	bool "NUVOTON MA35D1 pin control drivers"
 	depends on PINCTRL_GENERIC
 	default y
 	help
 	  Enable support pin control functions for NVT SoCs.
 
-config SPL_PINCTRL_NUA3500
-	bool "Support NUVOTON NUA3500 pin controllers in SPL"
+config SPL_PINCTRL_MA35D1
+	bool "Support NUVOTON MA35D1 pin controllers in SPL"
 	depends on SPL_PINCTRL_GENERIC
 	default y
 	help

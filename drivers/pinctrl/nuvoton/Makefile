@@ -4,4 +4,4 @@
 #
 
 obj-y += pinctrl-nvt.o
-obj-$(CONFIG_PINCTRL_NUA3500) += pinctrl-nua3500.o
+obj-$(CONFIG_PINCTRL_MA35D1) += pinctrl-ma35d1.o

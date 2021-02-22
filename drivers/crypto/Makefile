@@ -4,6 +4,6 @@
 # 	http://www.samsung.com
 
 obj-$(CONFIG_EXYNOS_ACE_SHA)	+= ace_sha.o
-obj-$(CONFIG_NUA3500_CRYPTO) += nua3500-crypto.o
+obj-$(CONFIG_MA35D1_CRYPTO) += ma35d1-crypto.o
 obj-y += rsa_mod_exp/
 obj-y += fsl/

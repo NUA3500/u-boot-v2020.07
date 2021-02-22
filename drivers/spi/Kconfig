@@ -429,8 +429,8 @@ config MXC_SPI
 	  Enable the MXC SPI controller driver. This driver can be used
 	  on various i.MX SoCs such as i.MX31/35/51/6/7.
 
-config NUA3500_SPI
-        bool "NUA3500 SPI driver"
+config MA35D1_SPI
+        bool "MA35D1 SPI driver"
 
 config OMAP3_SPI
 	bool "McSPI driver for OMAP"

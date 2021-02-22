@@ -188,11 +188,11 @@ config SANDBOX_CLK_CCF
 	  Clock Framework [CCF] code in U-Boot's Sandbox clock driver.
 
 
-config NUA3500_CLK_CCF
-	bool "NUA3500 Common Clock Framework [CCF] support "
+config MA35D1_CLK_CCF
+	bool "MA35D1 Common Clock Framework [CCF] support "
 	depends on CLK
 	select CLK_CCF
 	help
-	  Enable the NUA3500 clock driver.
+	  Enable the MA35D1 clock driver.
 
 endmenu

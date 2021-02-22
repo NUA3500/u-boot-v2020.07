@@ -374,11 +374,11 @@ config SYS_I2C_SANDBOX
 	  bus. Devices can be attached to the bus using the device tree
 	  which specifies the driver to use.  See sandbox.dts as an example.
 
-config SYS_I2C_NUA3500
-	bool "NUA3500 I2C driver"
+config SYS_I2C_MA35D1
+	bool "MA35D1 I2C driver"
 	depends on DM_I2C
 	help
-	  Enable I2C support for NUA3500.
+	  Enable I2C support for MA35D1.
 
 config SYS_I2C_S3C24X0
 	bool "Samsung I2C driver"

@@ -815,7 +815,7 @@ config ARCH_NUVOTON
 	select DM
 	select OF_CONTROL
 	help
-	  Support for the NUA3500 developed by Nuvoton Technology Corporation.
+	  Support for the MA35D1 developed by Nuvoton Technology Corporation.
 
 config ARCH_LPC32XX
 	bool "NXP LPC32xx platform"

@@ -1,0 +1,12 @@
+if MA35D1
+
+config SYS_BOARD
+	default "ma35d1"
+
+config SYS_VENDOR
+	default "nuvoton"
+
+config SYS_CONFIG_NAME
+	default "ma35d1"
+
+endif

@@ -147,10 +147,10 @@ config RTC_STM32
 	  Enable STM32 RTC driver. This driver supports the rtc that is present
 	  on some STM32 SoCs.
 
-config RTC_NUA3500
-	bool "Enable NUA3500 RTC driver"
+config RTC_MA35D1
+	bool "Enable MA35D1 RTC driver"
 	depends on DM_RTC
 	help
-	  Enable NUA3500 RTC driver.
+	  Enable MA35D1 RTC driver.
 
 endmenu

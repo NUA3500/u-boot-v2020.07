@@ -78,7 +78,7 @@ static int nvt_set_mux(struct nvt_pinctrl_priv *priv,
 	return 0;
 }
 
-#ifdef CONFIG_NUA3500_GPIO
+#ifdef CONFIG_MA35D1_GPIO
 static void nvt_gpio_cla_port(unsigned int gpio_num, int *group, int *num)
 {
 	*group = gpio_num / GPIO_OFFSET;
@@ -284,7 +284,7 @@ static int nvt_pinctrl_set_state(struct udevice *dev,
 	int ret, size, i;
 	const u32 *data;
 	u32 offset, shift, muxval, conf, pins;
-#ifdef CONFIG_NUA3500_GPIO
+#ifdef CONFIG_MA35D1_GPIO
 	const void *value;
 	const char *prop_name;
 	int prop_len, param;
@@ -326,7 +326,7 @@ static int nvt_pinctrl_set_state(struct udevice *dev,
 		ret = nvt_set_mux(priv, offset, shift, muxval);
 		if (ret)
 			return ret;
-#ifdef CONFIG_NUA3500_GPIO
+#ifdef CONFIG_MA35D1_GPIO
 		node = ofnode_get_by_phandle(conf);
 		if (!ofnode_valid(node))
 			return -ENODEV;
@@ -372,7 +372,7 @@ static int nvt_pinctrl_get_soc_data(struct udevice *dev)
 {
 	struct nvt_pinctrl_priv *priv = dev_get_priv(dev);
 	struct nvt_pin_ctrl *ctrl = priv->ctrl;
-#ifdef CONFIG_NUA3500_GPIO
+#ifdef CONFIG_MA35D1_GPIO
 	int i;
 	ofnode node;
 	struct nvt_pin_bank *bank;
@@ -394,7 +394,7 @@ static int nvt_pinctrl_get_soc_data(struct udevice *dev)
 		bank = ctrl->pin_banks;
 		for (i = 0; i < ctrl->nr_banks; ++i, ++bank) {
 			if (!strncmp(bank->name, ofnode_get_name(node), 5)) {
-				device_bind_driver_to_node(dev, "nua3500_gpio",
+				device_bind_driver_to_node(dev, "ma35d1_gpio",
 							   ofnode_get_name
 							   (node), node,
 							   &bank->dev);

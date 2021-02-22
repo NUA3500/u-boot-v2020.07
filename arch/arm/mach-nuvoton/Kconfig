@@ -6,14 +6,14 @@ config SYS_SOC
 config SYS_VENDOR
 	default "nuvoton"
 
-config NUA3500
+config MA35D1
 	select ARM64
 	select DM
 	select DM_ETH
-	bool "Nuvoton NUA3500"
+	bool "Nuvoton MA35D1"
 	default y
 
-source "arch/arm/mach-nuvoton/nua3500/Kconfig"
-source "board/nuvoton/nua3500/Kconfig"
+source "arch/arm/mach-nuvoton/ma35d1/Kconfig"
+source "board/nuvoton/ma35d1/Kconfig"
 
 endif
