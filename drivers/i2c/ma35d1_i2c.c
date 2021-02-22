@@ -269,13 +269,9 @@ static int ma35d1_i2c_set_bus_speed(struct udevice *dev, unsigned int sp)
 
 	regs->CTL0 &= ~I2C_CTL_ENABLE; // Disable I2C
 
-	#if 0
 	clk_rate = clk_get_rate(&priv->clk);
 	if (IS_ERR_VALUE(clk_rate))
 		return -EINVAL;
-	#else // for emulation setting
-	clk_rate = 12000000;
-	#endif
 
 	/* assume speed above 1000 are Hz-specified */
 	if(sp > 1000) sp = sp/1000;
@@ -332,15 +328,16 @@ static int ma35d1_i2c_probe(struct udevice *dev)
 	priv->regs = (struct ma35d1_i2c_regs *)addr;
 	regs = priv->regs;
 
-	#if 0
-	ret = clk_get_by_index(dev, 0, &priv->clock);
+	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret)
 		return ret;
 
-	ret = clk_enable(&priv->clock);
+	ret = clk_enable(&priv->clk);
 	if (ret)
-		clk_free(&priv->clock);
-	#endif
+	{
+		printf("\n i2c clk enable fail \n");
+		clk_free(&priv->clk);
+	}
 
 	regs->CTL0 |= I2C_CTL_ENABLE; // Enable I2C
 

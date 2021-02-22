@@ -445,11 +445,11 @@
 			};
 		};
 
-		i2c0 {
-			pinctrl_i2c0: i2c0grp{
+		i2c1 {
+			pinctrl_i2c1: i2c1grp{
 				nuvoton,pins =
-				<SYS_GPC_MFPH_PC8MFP_I2C0_SDA    &pcfg_default>,
-				<SYS_GPC_MFPH_PC9MFP_I2C0_SCL    &pcfg_default>;
+				<SYS_GPN_MFPL_PN4MFP_I2C1_SDA    &pcfg_default>,
+				<SYS_GPN_MFPL_PN5MFP_I2C1_SCL    &pcfg_default>;
 			};
 		};
 
@@ -542,17 +542,18 @@
 		compatible = "nuvoton,ma35d1-rtc";
 		clocks = <&clk rtc_gate>;
 		reg = <0x0 0x40410000 0x0 0x10000>;
-		//interrupts = <GIC_SPI 5 IRQ_TYPE_EDGE_RISING>;
+		//interrupts = <GIC_SPI 5 IRQ_TYPE_LEVEL_HIGH>;
 		status = "disabled";
 	};
 
-	i2c0: i2c@40800000 {
+	i2c1: i2c@40810000 {
+		u-boot,dm-pre-reloc;
 		compatible = "nuvoton,ma35d1-i2c";
-		reg = <0x0 0x40800000 0x0 0x10000>;
+		reg = <0x0 0x40810000 0x0 0x10000>;
 		pinctrl-names = "default";
-		pinctrl-0 = <&pinctrl_i2c0>;
-		interrupts = <GIC_SPI 13 IRQ_TYPE_EDGE_RISING>;
-		clocks = <&clk i2c0_gate>;
+		pinctrl-0 = <&pinctrl_i2c1>;
+		//interrupts = <GIC_SPI 14 IRQ_TYPE_LEVEL_HIGH>;
+		clocks = <&clk i2c1_gate>;
 		clock-frequency = <100000>;
 		status = "disabled";
 	};
