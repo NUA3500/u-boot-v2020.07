@@ -701,7 +701,7 @@
 		nuvoton,clk = <&clk>;
 		clocks = <&clk wdt1_gate>;
 		clock-names = "wdt";
-		status = "okay";
+		status = "disabled";
 	};
 
 };
