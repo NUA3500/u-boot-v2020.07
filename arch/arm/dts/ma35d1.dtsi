@@ -567,6 +567,9 @@
 		nuvoton,clk = <&clk>;
 		clocks = <&clk qspi0_gate>;
 		clock-names = "qspi0";
+		resets = <&reset MA35D1_RESET_QSPI0>;
+		reset-names = "qspi0_rst";
+
 
 		u-boot,dm-pre-reloc;
 		status = "okay";

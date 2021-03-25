@@ -1076,7 +1076,9 @@ CONFIG_PINCTRL_MA35D1=y
 #
 # Reset Controller Support
 #
-# CONFIG_DM_RESET is not set
+CONFIG_DM_RESET=y
+# CONFIG_RESET_HISILICON is not set
+CONFIG_RESET_MA35D1=y
 # CONFIG_DM_RNG is not set
 
 #

@@ -41,6 +41,7 @@
 #include <clk.h>
 #include <spi.h>
 #include <spi-mem.h>
+#include <reset.h>
 
 /* QSPI register offsets */
 #define	CTL	0x0
@@ -85,6 +86,7 @@ struct ma35d1_qspi {
 	struct udevice *dev;
 	ulong bus_clk_rate;
 	u32 mr;
+	struct reset_ctl rst;
 };
 
 struct ma35d1_qspi_mode {
@@ -256,6 +258,12 @@ static int ma35d1_qspi_set_mode(struct udevice *bus, uint mode)
 
 static int ma35d1_qspi_init(struct ma35d1_qspi *nq)
 {
+	/* QSPI0 reset */
+	reset_assert(&nq->rst);
+	udelay(1000);
+	reset_deassert(&nq->rst);
+	udelay(1000);
+
 	/* Initialize data width to 8 bit */
 	ma35d1_qspi_write((ma35d1_qspi_read(nq, CTL) & ~0x1F00) | 0x800, nq, CTL);
 
@@ -297,6 +305,12 @@ static int ma35d1_qspi_probe(struct udevice *dev)
 		return -EINVAL;
 
 	nq->bus_clk_rate = clk_rate;
+
+	ret = reset_get_by_name(dev, "qspi0_rst", &nq->rst);
+	if (ret && ret != -ENOENT) {
+		dev_err(dev, "failed to get reset\n");
+		return ret;
+	}
 
 	ma35d1_qspi_init(nq);
 
