@@ -89,7 +89,7 @@ static const struct spinand_info winbond_spinand_table[] = {
 		     SPINAND_ECCINFO(&w25m02gv_ooblayout, NULL),
 		     SPINAND_SELECT_TARGET(w25m02gv_select_target)),
 	SPINAND_INFO("W25N02JWZEIF", 0xBF,
-		     NAND_MEMORG(1, 4096, 64, 64, 1024, 1, 1, 1),
+		     NAND_MEMORG(1, 2048, 64, 64, 2048, 1, 1, 1),
 		     NAND_ECCREQ(1, 512),
 		     SPINAND_INFO_OP_VARIANTS(&read_cache_variants,
 					      &write_cache_variants,
