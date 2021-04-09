@@ -5,6 +5,7 @@
  */
 
 
+#include <cpu_func.h>
 #include <common.h>
 #include <dm.h>
 #include <dm/device_compat.h>
@@ -210,7 +211,8 @@ static void ma35d1_nand_command(struct mtd_info *mtd, unsigned int command, int 
 			if (page_addr != -1) {
 				writel(page_addr&0xFF, nand_info->reg+REG_SMADDR);
 
-				if ( chip->chipsize > (128 << 20) ) {
+				if ( chip->options & NAND_ROW_ADDR_3) {
+//				if ( chip->chipsize > (128 << 20) ) {
 					writel((page_addr >> 8)&0xFF, nand_info->reg+REG_SMADDR);
 					writel(((page_addr >> 16)&0xFF)|ENDADDR, nand_info->reg+REG_SMADDR);
 				} else {
@@ -534,6 +536,7 @@ static inline int ma35d1_nand_dma_transfer(struct mtd_info *mtd, const u_char *a
 	writel(readl(nand_info->reg+REG_SMIER) & ~(0x1), nand_info->reg+REG_SMIER);
 
 	// Fill dma_addr
+	flush_dcache_range((unsigned long)addr, (unsigned long)addr + len);
 	writel((unsigned long)addr, nand_info->reg+REG_NAND_DMACSAR);
 
 	// Enable target abort interrupt generation during DMA transfer.
@@ -597,6 +600,7 @@ static inline int ma35d1_nand_dma_transfer(struct mtd_info *mtd, const u_char *a
 			} while (!(readl(nand_info->reg+REG_SMISR) & 0x1) || (readl(nand_info->reg+REG_SMISR) & 0x4));
 		} else
 			while (!(readl(nand_info->reg+REG_SMISR) & 0x1));
+		invalidate_dcache_range((unsigned long)addr, (unsigned long)addr + len);
 	}
 
 	// Clear DMA finished flag
@@ -616,19 +620,20 @@ static int ma35d1_nand_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *
 {
 	struct ma35d1_nand_info *nand_info = nand_get_controller_data(chip);
 	uint8_t *ecc_calc = chip->buffers->ecccalc;
-	uint32_t hweccbytes=chip->ecc.layout->eccbytes;
 	register char * ptr=(char *)(nand_info->reg+REG_SMRA0);
 
 	memset ( (void*)ptr, 0xFF, mtd->oobsize );
 	memcpy ( (void*)ptr, (void*)chip->oob_poi,  mtd->oobsize - chip->ecc.total );
 
+	ma35d1_nand_command(mtd, NAND_CMD_SEQIN, 0, page);
 	ma35d1_nand_dma_transfer( mtd, buf, mtd->writesize , 0x1);
+	ma35d1_nand_command(mtd, NAND_CMD_PAGEPROG, -1, -1);
 
 	// Copy parity code in SMRA to calc
 	memcpy ( (void*)ecc_calc,  (void*)( (long)ptr + ( mtd->oobsize - chip->ecc.total ) ), chip->ecc.total );
 
 	// Copy parity code in calc to oob_poi
-	memcpy ( (void*)(chip->oob_poi+hweccbytes), (void*)ecc_calc, chip->ecc.total);
+	memcpy ( (void*)(chip->oob_poi+(mtd->oobsize-chip->ecc.total)), (void*)ecc_calc, chip->ecc.total);
 
 	return 0;
 }
@@ -643,7 +648,6 @@ static int ma35d1_nand_write_page_hwecc(struct mtd_info *mtd, struct nand_chip *
 static int ma35d1_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct nand_chip *chip, uint8_t *buf, int oob_required, int page)
 {
 	struct ma35d1_nand_info *nand_info = nand_get_controller_data(chip);
-	int eccsize = chip->ecc.size;
 	uint8_t *p = buf;
 	char * ptr= (char *)(nand_info->reg+REG_SMRA0);
 
@@ -654,12 +658,19 @@ static int ma35d1_nand_read_page_hwecc_oob_first(struct mtd_info *mtd, struct na
 	// Second, copy OOB data to SMRA for page read
 	memcpy ( (void*)ptr, (void*)chip->oob_poi, mtd->oobsize );
 
-	// Third, read data from nand
-	ma35d1_nand_command(mtd, NAND_CMD_READ0, 0, page);
-	ma35d1_nand_dma_transfer(mtd, p, eccsize, 0x0);
+	if ((*(ptr+2) != 0) && (*(ptr+3) != 0))
+	{
+		memset((void*)p, 0xff, mtd->writesize);
+	}
+	else
+	{
+		// Third, read data from nand
+		ma35d1_nand_command(mtd, NAND_CMD_READ0, 0, page);
+		ma35d1_nand_dma_transfer(mtd, p, mtd->writesize, 0x0);
 
-	// Fouth, restore OOB data from SMRA
-	memcpy ( (void*)chip->oob_poi, (void*)ptr, mtd->oobsize );
+		// Fouth, restore OOB data from SMRA
+		memcpy ( (void*)chip->oob_poi, (void*)ptr, mtd->oobsize );
+	}
 
 	return 0;
 }
@@ -685,6 +696,10 @@ static int ma35d1_nand_read_oob_hwecc(struct mtd_info *mtd, struct nand_chip *ch
 	// Second, copy OOB data to SMRA for page read
 	memcpy ( (void*)ptr, (void*)chip->oob_poi, mtd->oobsize );
 
+	if ((*(ptr+2) != 0) && (*(ptr+3) != 0))
+	{
+		memset((void*)chip->oob_poi, 0xff, mtd->oobsize);
+	}
 	return 0; //CWWeng 2017.2.14
 }
 
@@ -695,6 +710,7 @@ int ma35d1_nand_init(struct ma35d1_nand_info *nand_info)
 	struct nand_chip *nand = &nand_info->chip;
 	struct mtd_info *mtd = nand_to_mtd(nand);
 	unsigned int reg;
+	int ret=0;
 
 	nand_set_controller_data(nand, nand_info);
 	nand->options |= NAND_NO_SUBPAGE_WRITE;
@@ -733,35 +749,39 @@ int ma35d1_nand_init(struct ma35d1_nand_info *nand_info)
 	while (readl(nand_info->reg+REG_SMCSR) & 0x1);
 
 	/* Detect NAND chips */
-	if (nand_scan(mtd, 1) == 0) {
-		//Set PSize bits of SMCSR register to select NAND card page size
-		reg = readl(nand_info->reg+REG_SMCSR) & (~0x30000);
-		writel(reg | (mtd->writesize << 5), nand_info->reg+REG_SMCSR);
+	ret = nand_scan(mtd, 1);
+	if (ret)
+		return ret;
 
-		if (nand->ecc.strength == 0) {
-			nand_info->eBCHAlgo = 0; /* No ECC */
-			ma35d1_layout_oob_table(&ma35d1_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
+	//Set PSize bits of SMCSR register to select NAND card page size
+	reg = readl(nand_info->reg+REG_SMCSR) & (~0x30000);
+	writel(reg | (mtd->writesize << 5), nand_info->reg+REG_SMCSR);
 
+	if (nand->ecc.strength == 0) {
+		nand_info->eBCHAlgo = 0; /* No ECC */
+		ma35d1_layout_oob_table(&ma35d1_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
 
-		} else if (nand->ecc.strength <= 8) {
-			nand_info->eBCHAlgo = 1; /* T8 */
-			ma35d1_layout_oob_table(&ma35d1_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
+	} else if (nand->ecc.strength <= 8) {
+		nand_info->eBCHAlgo = 1; /* T8 */
+		ma35d1_layout_oob_table(&ma35d1_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
 
-		} else if (nand->ecc.strength <= 12) {
-			nand_info->eBCHAlgo = 2; /* T12 */
-			ma35d1_layout_oob_table(&ma35d1_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
+	} else if (nand->ecc.strength <= 12) {
+		nand_info->eBCHAlgo = 2; /* T12 */
+		ma35d1_layout_oob_table(&ma35d1_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
 
-		} else if (nand->ecc.strength <= 24) {
-			nand_info->eBCHAlgo = 3; /* T24 */
-			ma35d1_layout_oob_table(&ma35d1_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
+	} else if (nand->ecc.strength <= 24) {
+		nand_info->eBCHAlgo = 3; /* T24 */
+		ma35d1_layout_oob_table(&ma35d1_nand_oob, mtd->oobsize, g_i32ParityNum[mtd->writesize>>12][nand_info->eBCHAlgo]);
 
-		} else {
-			pr_warn("NAND Controller is not support this flash. (%d, %d)\n", mtd->writesize, mtd->oobsize);
-		}
+	} else {
+		pr_warn("NAND Controller is not support this flash. (%d, %d)\n", mtd->writesize, mtd->oobsize);
 	}
 
 	nand_info->m_i32SMRASize  = mtd->oobsize;
-	nand->ecc.bytes = ma35d1_nand_oob.eccbytes;
+	nand->ecc.steps = mtd->writesize / nand->ecc.size;
+	nand->ecc.bytes = ma35d1_nand_oob.eccbytes / nand->ecc.steps;
+	nand->ecc.total = ma35d1_nand_oob.eccbytes;
+	//mtd_set_ooblayout(mtd, &ma35d1_ooblayout_ops);
 
 	nand->options = 0;
 
